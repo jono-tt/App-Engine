@@ -2,17 +2,25 @@ class JsonParameterParser
 
   parseParameters: (params) ->
 
-    obj = null;
+    retPageParams = null;
+    
 
     #callback of this function to control display
     if !_.isEmpty(params)
-      try
-        obj = $j.parseJSON urlDecode(params)
-      catch e
-        #do nothing, just cannot parse JSON
-        console.debug "Cannot parse '", urlDecode(params), "' to JSON"
+      ps = params.split('/')
+      obj = { pageName: ps[0] }
 
-    return obj
+      if(ps.length > 1)
+        try
+          obj.params = $j.parseJSON urlDecode(ps[1])
+        catch e
+          #do nothing, just cannot parse JSON
+          console.debug "Cannot parse '", urlDecode(params), "' to JSON"
+
+      return [obj]
+
+
+    return null
 
   urlDecode = (str) ->
     return decodeURIComponent((str + '').replace(/\+/g, '%20'))
@@ -31,5 +39,3 @@ class JsonParameterParser
       else
         #parsing failed
         console.log "Error parsing routingData", routingData
-
-    return null

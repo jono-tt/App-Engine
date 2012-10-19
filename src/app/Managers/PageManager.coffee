@@ -74,5 +74,5 @@ class PageManager extends AppEngine.Objects.StrictObject
     })
 
   #Page Navigation
-  navigateToPage: (page, params) ->
-    console.log "navigate to:", page, "with params", params
+  navigateToPage: (pageParams) ->
+    console.log "navigate to:", pageParams

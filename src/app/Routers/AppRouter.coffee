@@ -1,5 +1,8 @@
 
 class AppRouter extends Backbone.Router
+  routes: {
+    "*splat": "routeChange"
+  }
   constructor: (config) ->
     config = config or {}
     if !config.pageManager
@@ -17,19 +20,14 @@ class AppRouter extends Backbone.Router
   initialize: (options) ->
     #http://backbonejs.org/#Router-route
 
-    for page in @pageManager.pages
-      #create the page route
-      @route "#{page.id}/*splat", page.id + "_withparams"
-      @route "#{page.id}", page.id + "_noparams"
 
-      #create the mapper to the pageManager
+  routeChange: (params) ->
+    if params
+      pageParams = @parameterParser.parseParameters(params)
 
-      @on "route:" + page.id + "_withparams", @routeChangeToPageWithParams.createDelegate(@, [page], true)
-      @on "route:" + page.id + "_noparams", @routeChangeToPageNoParams.createDelegate(@, [page], true)
+      if pageParams
+        @pageManager.navigateToPage(pageParams)
+        return
 
-  routeChangeToPageWithParams: (params, page) ->
-    fixedParameters = @parameterParser.parseParameters(params)
-    @pageManager.navigateToPage(page, fixedParameters)
-
-  routeChangeToPageNoParams: (page) ->
-    @pageManager.navigateToPage(page, null)
+    #no params, route to default page
+    @pageManager.navigateToDefaultPage()
