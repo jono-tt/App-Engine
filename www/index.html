@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <script src="js/app-debug.js"></script>
+  </head>
+  <body>
+    My test Page
+
+    <div id="test1" class="ae-comp pseudo-page" data-type="app-engine-page" data-transition-type="test">
+      <div id="test2" class="ae-comp pseudo-page" data-type="app-engine-page" >
+      </div>
+      <div id="test3" class="ae-comp pseudo-page" data-type="app-engine-page">
+        <div class="ae-comp" data-type="say-hello">HELLO</div>
+      </div>
+    </div>
+
+    <div id="test4" class="ae-comp pseudo-page" data-type="app-engine-page">
+    </div>
+
+    <script id='app-config' type='text/template'>
+      {
+        "language": "en",
+        "logger": {
+          "debug": "true",
+          "error": "true"
+        },
+        "componentRegistryNamespaces": ["AppEngine"],
+        "pageManager": {
+          "pageDefaultConfig": {
+          }
+        }
+      }
+    </script>
+
+    <script id='full-NOT-USED-app-config' type='text/template'>
+      {
+        "language": "en",
+        "logger": {
+          "debug": "true",
+          "error": "true"
+        },
+        "componentRegistryNamespaces": ["AppEngine"],
+        "pageManager": {
+          "pageDefaultConfig": {
+            "type": ""
+          },
+          "pageClassIdentifier": ""
+        }
+      }
+    </script>
+  </body>
+</html>
