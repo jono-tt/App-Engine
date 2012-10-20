@@ -24,10 +24,13 @@ RegExp.prototype.getMatches = (text) ->
     index = -1
     matches = []
     while (text.length > 0 and (match = @exec(text)) != null)
-      index = match.index + match[0].length
+      if (match[0].length == 0 and match.index == 0)
+        index = 1
+      else
+        index = match.index + match[0].length
+        matches.push(match)
 
       text = text.substring(index)
-      matches.push(match)
 
     return matches
 
