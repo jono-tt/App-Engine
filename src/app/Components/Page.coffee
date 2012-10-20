@@ -58,3 +58,39 @@ class Page extends AppEngine.Components.AppEngineComponent
       @childPageManager.components.push(comp)
 
 
+  #SECTION USED FOR SHOWING AND HIDING PAGES
+  beforePageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
+    console.debug("Page: '#{@id}': beforePageShow")
+    cb()
+
+  pageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
+    console.debug("Page: '#{@id}': pageShow")
+    cb()
+
+  afterPageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
+    console.debug("Page: '#{@id}': afterPageShow")
+    if @childPageManager
+      #this has child pages that need to be called
+      if childPagesWithParams.length > 0
+        #there are parameters for the child page manager
+        return @childPageManager.navigateToPage(childPagesWithParams, cb)
+      else
+        #navigate to the default page o the child page manager
+        return @childPageManager.navigateToDefaultPage(cb)
+    
+    cb()
+
+  beforePageHide: (newPage, pageParams, childPagesWithParams, cb) ->
+    console.debug("Page: '#{@id}': beforePageHide")
+    if(!pageParams or !pageParams.dont)
+      cb()
+    else
+      return false
+
+  # pageHide: (newPage, pageParams, childPagesWithParams, cb) ->
+  #   console.debug("Page: '#{@id}': pageHide")
+  #   cb()
+
+  # afterPageHide: (newPage, pageParams, childPagesWithParams, cb) ->
+  #   console.debug("Page: '#{@id}': afterPageHide")
+  #   cb()

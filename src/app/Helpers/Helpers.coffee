@@ -28,6 +28,9 @@ helpers.getApplicationConfig = ->
 
   return {}
 
+helpers.windowHistoryGoBack = (number) ->
+  window.history.go(number * -1)
+
 
 helpers.assertExists = (obj, errorMessage) ->
   if _.isUndefined(obj)

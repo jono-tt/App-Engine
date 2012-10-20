@@ -20,12 +20,24 @@ Function.prototype.createDelegate = (c, b, a) ->
 
     return d.apply (c or this), f
 
-Object.prototype.mixin = (Klass) ->
-  # assign class properties
-  for key, value of Klass
-    @[key] = value
+RegExp.prototype.getMatches = (text) ->
+    index = -1
+    matches = []
+    while (text.length > 0 and (match = @exec(text)) != null)
+      index = match.index + match[0].length
 
-  for key, value of Klass.prototype
-    # assign instance properties
-    @::[key] = value
-  @
+      text = text.substring(index)
+      matches.push(match)
+
+    return matches
+
+#TODO: decide if we are going to introduce mixins
+# Object.prototype.mixin = (Klass) ->
+#   # assign class properties
+#   for key, value of Klass
+#     @[key] = value
+
+#   for key, value of Klass.prototype
+#     # assign instance properties
+#     @::[key] = value
+#   @

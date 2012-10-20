@@ -23,7 +23,10 @@ class PageManager extends AppEngine.Objects.StrictObject
   initialise: (cb)->
     try 
       pagesInitialiseComplete = (pages)->
-        @pages = pages
+        @pages = {}
+        for page in pages
+          @pages[page.id] = page
+
         cb()
 
       pageDefConfig = { pageManager: @ }
@@ -74,5 +77,52 @@ class PageManager extends AppEngine.Objects.StrictObject
     })
 
   #Page Navigation
-  navigateToPage: (pageParams) ->
-    console.log "navigate to:", pageParams
+  navigateToPage: (pagenamesWithParams, navigationComplete) ->
+    if pagenamesWithParams.length > 0
+      page = @pages[pagenamesWithParams[0].pageName]
+
+      if page
+        #take the first page off the stack and retrieve the parameters
+        pageParams = pagenamesWithParams.shift().params
+
+        #navigate to the page
+        _navigateToPage page, pageParams, pagenamesWithParams, navigationComplete
+      else
+        #cannot find page, navigate to default
+        @navigateToDefaultPage(navigationComplete)
+    else
+      console.debug "PageManager: There are 0 pages to try display"
+
+  navigateToDefaultPage: (navigationComplete) ->
+    console.log "navigate to default page"
+    navigationComplete()
+    return true
+
+  _navigateToPage = (newpage, pageParams, childPagesAndParams, navigationComplete) ->
+    afterPageShownComplete = ->
+      console.debug "PageManager: Transition to page #{newpage.id} complete"
+      navigationComplete()
+
+    pageShown = ->
+      console.debug "PageManager: page #{newpage.id} shown, firing afterPageShow"
+      @currentPage = newpage
+      newpage.afterPageShow @currentPage, pageParams, childPagesAndParams, afterPageShownComplete.createDelegate(@)
+    
+    pageShow = ->
+      newpage.pageShow @currentPage, pageParams, childPagesAndParams, pageShown.createDelegate(@)
+
+    beforePageShown = ->
+      newpage.beforePageShow @currentPage, pageParams, childPagesAndParams, pageShow.createDelegate(@)
+
+
+    #if there is an old page, let the old page decide if it wants to opt out before navigaigation
+    if @currentPage
+      #if this returns immediately with false the navigation will be stopped
+      return @currentPage.beforePageHide newpage, pageParams, childPagesAndParams, beforePageShown.createDelegate(@)
+    else
+      beforePageShown()
+
+    return true
+
+
+

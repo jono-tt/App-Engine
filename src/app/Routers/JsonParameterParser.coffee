@@ -1,24 +1,34 @@
 class JsonParameterParser
+  constructor: ->
+    @regex = new RegExp("([^/]*)/?([^/]*)?/?", '')
 
-  parseParameters: (params) ->
+  parseParameters: (url) ->
+    pageParams = [] 
 
-    retPageParams = null;
-    
+    if !_.isEmpty(url)
+      matches = @regex.getMatches(url)
+      if matches.length > 0
+        for match in matches
+          pageParams.push({
+            pageName: match[1],
+            params: getParams match[2]
+          })
+      else
+        #this contains only the page name
+        pageParams.push({
+          pageName: url
+        })
 
-    #callback of this function to control display
-    if !_.isEmpty(params)
-      ps = params.split('/')
-      obj = { pageName: ps[0] }
+    return pageParams
 
-      if(ps.length > 1)
-        try
-          obj.params = $j.parseJSON urlDecode(ps[1])
-        catch e
-          #do nothing, just cannot parse JSON
-          console.debug "Cannot parse '", urlDecode(params), "' to JSON"
+  getParams = (paramString) ->
 
-      return [obj]
-
+    if !_.isEmpty(paramString)
+      try
+        return $j.parseJSON urlDecode(paramString)
+      catch e
+        #do nothing, just cannot parse JSON
+        console.debug "Cannot parse '", urlDecode(paramString), "' to JSON"
 
     return null
 
@@ -39,3 +49,4 @@ class JsonParameterParser
       else
         #parsing failed
         console.log "Error parsing routingData", routingData
+

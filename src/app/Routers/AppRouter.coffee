@@ -22,12 +22,25 @@ class AppRouter extends Backbone.Router
 
 
   routeChange: (params) ->
+    navigationComplete = ->
+      @previousParams = params
+      console.debug "AppRouter: All page transitions complete", params
+
     if params
       pageParams = @parameterParser.parseParameters(params)
 
-      if pageParams
-        @pageManager.navigateToPage(pageParams)
-        return
+      if pageParams.length > 0
+        if !@pageManager.navigateToPage(pageParams, navigationComplete.createDelegate(@))
+          @revertNavigationChange()
 
+        return
+    
     #no params, route to default page
-    @pageManager.navigateToDefaultPage()
+    if ! @pageManager.navigateToDefaultPage(navigationComplete)
+      #Revert navigation if the page has
+      @revertNavigationChange()
+
+  
+  revertNavigationChange: ->
+    if @previousParams
+      @navigate(@previousParams, {trigger: false, replace: true});
