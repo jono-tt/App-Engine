@@ -2,7 +2,8 @@
 toast
 
 	folders: {
-		'src/app': 'AppEngine'
+		'src/specs': 'AppEngine'
+		'src/integration-tests': 'AppEngine'
 	}
 
 	# EXCLUDED FOLDERS (optional)
