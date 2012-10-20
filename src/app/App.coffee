@@ -82,13 +82,5 @@ class App
       console.isError = true
 
 
-#this starts up the application once all scripts are loaded
-$j(document).ready ->
-  #create the application
-  cb = ->
-    Backbone.history.start();
-    console.debug "AppEngine: History started"
-
-  new AppEngine.App cb
 
 

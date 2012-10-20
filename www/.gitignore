@@ -1,1 +1,4 @@
-js
+js/toaster
+js/*.js
+test-js/toaster
+test-js/*.js
