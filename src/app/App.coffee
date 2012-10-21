@@ -19,6 +19,14 @@ class App
     #setup the engine controller
     engine = new AppEngine.Controllers.EngineController @appConfig;
 
+    logError = (message, e) ->
+      if(console.isError)
+        console.error message
+        if _.isFunction(e.log)
+          e.log() 
+        else
+          console.error e
+
     try
       console.log 'Engine initialise start'
       engine.initialise ->
@@ -30,13 +38,9 @@ class App
           console.log 'Engine starting complete';
           cb()
         catch e
-          if(console.isError)
-            console.error "Error: Engine start failure"
-            e.log() if _.isFunction(e.log)
+          logError "Error: Engine start failure", e
     catch e
-        if(console.isError)
-          console.error "Error: Engine initialise failure"
-          e.log() if _.isFunction(e.log)
+      logError "Error: Engine initialise failure", e
 
   setupComponentRegistry: ->
     scopes = []
