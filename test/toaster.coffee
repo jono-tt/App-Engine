@@ -2,8 +2,8 @@
 toast
 
 	folders: {
-		'src/specs': 'AppEngine'
-		'src/integration-tests': 'AppEngine'
+		'src/specs/app': 'AppEngine'
+		'src/integration-tests/app': 'AppEngine'
 	}
 
 	# EXCLUDED FOLDERS (optional)
@@ -16,9 +16,9 @@ toast
 	]
 
 	# => OPTIONS (optional, default values listed)
-	bare: false
-	packaging: true
-	expose: 'this'
+	bare: true
+	packaging: false
+	expose: 'window'
 	minify: false
 
 	# => HTTPFOLDER (optional), RELEASE / DEBUG (required)

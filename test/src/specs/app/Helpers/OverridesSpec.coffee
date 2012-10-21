@@ -21,7 +21,7 @@ describe "Overrides specs", ->
         class MyDummy
           isCorrect: -> true
 
-        expect(AppEngine.App.Helpers.MyDummy.getName()).toEqual("MyDummy")
+        expect(MyDummy.getName()).toEqual("MyDummy")
 
 
     describe "createDelegate of function", ->

@@ -1,0 +1,24 @@
+This TestRunner suit was build up so that the unit tests can be run in a headless browser.
+All you need to run these tests is JAVA installed on the machine you are running the tests from.
+
+
+Files:
+lib/js.jar  -  Rhino Headless browser JAR
+lib/env.rhino.1.2.js  -  Rhino browser emulation library
+lib/envjs.bootstrap.js  -  Rhino startup lib to start browser emulation
+lib/r.js  -  RequireJS compat lib to run on Rhino
+lib/jasmine.console_reporter.js  -  Output report for jasmine (Debug tests in headless browser)
+lib/jasmine.junit_reporter.js  -  Output report for jasmine in JUnit style to integrate into Jenins CI Server
+RhinoSpecRunner.js  -  All additions to pull together all files for running as headless browser
+SpecRunner.html  -  Project startup for browser to execute tests
+
+
+  ********   Running Tests:   *********
+  Normal: java -jar lib/js.jar -opt -1 lib/envjs.bootstrap.js SpecRunner.html
+
+  Debug: java -classpath lib/js.jar org.mozilla.javascript.tools.debugger.Main -opt -1 lib/envjs.bootstrap.js SpecRunner.html
+  *************************************
+
+  ********   Create Single File:   *********
+  java -classpath lib/js.jar:lib/compiler.jar org.mozilla.javascript.tools.shell.Main -opt -1 lib/r.js CreateSingleFile.js {output name}
+  *************************************

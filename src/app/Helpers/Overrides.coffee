@@ -1,7 +1,7 @@
 #FUNCTION OVERRIDES
 Function.prototype.getName = ->
-    m = @toString().match(/^function\s(\w+)/)
-    if m then m[1] else "anonymous"
+  m = @toString().match(/.*?function\s(\w+)/, '')
+  if m then m[1] else "anonymous"
 
 
 Function.prototype.createDelegate = (c, b, a) ->

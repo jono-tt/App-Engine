@@ -1,0 +1,82 @@
+<project name="app-engine" default="package">
+
+	<tstamp>
+		<format property="TSTAMP" pattern="yyyy-MM-dd hh:mm:ss"/>
+	</tstamp>
+
+	<property environment="env"/>
+
+	<property name="app-engine-complete-min-js" value="target/app-engine-complete_min.js" />
+	<property name="app-engine-complete-min-css" value="target/app-engine-complete_min.css" />
+
+	<condition property="BUILD_NUMBER" value="${env.BUILD_NUMBER}" else="dev">
+	    <isset property="env.BUILD_NUMBER" />
+	</condition>
+
+	<target name="all" depends="clean,package"/>
+
+	<target name="clean">
+		<delete dir="target"/>
+	</target>
+
+	<target name="setup-tests">
+		<mkdir dir="target/reports" />
+	</target>
+
+	<target name="run-tests" depends="setup-tests">
+		<echo message="Run all Specs"/>
+		<mkdir dir="target" />
+
+		<java failonerror="true" fork="true" jar="build-lib/js.jar">
+			<arg line="-opt -1"/>
+			<arg value="lib/envjs.bootstrap.js"/>
+			<arg value="../../www/RhinoSpecRunner.html"/>
+		</java>
+	</target>
+
+	<target name="run-tests-continuously" depends="setup-tests">
+		<echo message="Run all Specs Continously until manually terminated"/>
+		<mkdir dir="target" />
+
+		<java failonerror="true" fork="true" jar="build-lib/js.jar">
+			<arg line="-opt -1"/>
+			<arg value="RhinoSpecRunner_Development.js"/>
+		</java>
+	</target>
+
+	<target name="create-single-js-file">
+		<mkdir dir="target" />
+
+		<concat destfile="${app-engine-complete-min-js}">
+      <header filtering="no" trimleading="yes">
+/***************************************************************************************
+Application: App-Engine
+Build: ${TSTAMP}
+Build Number: ${BUILD_NUMBER}
+***************************************************************************************/
+      </header>
+      <fileset file="../../www/js/app.js" />
+      <!--<fileset dir="../../vendors/css" includes="*.css" />-->
+   	</concat>
+	</target>
+
+	<target name="create-single-css-file">
+		<mkdir dir="target" />
+
+		<concat destfile="${app-engine-complete-min-css}">
+      <header filtering="no" trimleading="yes">
+/***************************************************************************************
+Application: App-Engine
+Build: ${TSTAMP}
+Build Number: ${BUILD_NUMBER}
+***************************************************************************************/
+      </header>
+      <fileset dir="../../www/css" includes="*.css" />
+      <!--<fileset dir="../../vendors/css" includes="*.css" />-->
+   	</concat>
+	</target>
+
+	<target name="package" depends="clean,run-tests,create-single-css-file,create-single-js-file">
+		<echo message="Packaging successful"/>
+	</target>
+</project>
