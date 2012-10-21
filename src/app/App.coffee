@@ -7,7 +7,7 @@ class App
       @appConfig = AppEngine.Helpers.getApplicationConfig()
     catch e
       console.error "Error: Loading application config"
-      e.log()
+      e.log() if _.isFunction(e.log)
       return
 
     #configure the application
@@ -32,11 +32,11 @@ class App
         catch e
           if(console.isError)
             console.error "Error: Engine start failure"
-            e.log()
+            e.log() if _.isFunction(e.log)
     catch e
         if(console.isError)
           console.error "Error: Engine initialise failure"
-          e.log()
+          e.log() if _.isFunction(e.log)
 
   setupComponentRegistry: ->
     scopes = []
