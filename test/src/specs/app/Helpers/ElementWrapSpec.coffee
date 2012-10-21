@@ -1,4 +1,4 @@
-describe "ElementWrapSpec", ->
+describe "ElementWrap specs", ->
   describe "Get Tree Structure", ->
     it "should get a tree Structure of all 'components' from the passed in element", ->
       startElement = $j("
