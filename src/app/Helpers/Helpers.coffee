@@ -80,35 +80,6 @@ helpers.createObjectByElementWrap = (elementWrap, defaultConfig, cb) ->
   helpers.createObjectFromType(config, type, cb)
 
 
-helpers.getObjectsBySelectorAndElement = (el, selector, defaultConfigProperties, defaultType, cb) ->
-  elements = el.find selector
-  count = 0
-  objs = {}
-
-  _.each elements, (element)->
-    complete = ->
-      count++
-      if count >= elements.length
-        cb(objs)
-
-    el = $j element
-
-    #get all the configParams
-    config = {}
-    _.each el.data(), (value, name) ->
-      config[name] = value
-
-    #set all the default values of this config
-    _.defaults config, defaultConfigProperties
-    config["id"] = element.id
-    config["el"] = el
-
-    onObjectCreated = (obj) ->
-      objs[config.id] = obj
-      complete()
-
-    helpers.getObjectByConfig config, defaultConfigProperties, defaultType, onObjectCreated
-
 helpers.getConfigFromElement = (el) ->
   config = {}
   _.each el.data(), (value, name) ->
@@ -127,7 +98,10 @@ helpers.getTypeFromConfig = (config, defaultType) ->
     type = AppEngine.registryGetTypeFromTypeShortName(config['type'])
 
     if(!type)
-      type = helpers.getObjectByPath config['type'], $OuterScope
+      types = helpers.getObjectByPath config['type'], $OuterScope
+      if(types.length > 0)
+        type = types[0]
+
 
   #log as debug console
   if type == defaultType
