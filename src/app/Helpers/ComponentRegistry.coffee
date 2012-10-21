@@ -1,51 +1,58 @@
 #create a registry for the application and the components that can be registered by a class name
-componentRegistry = {}
-__t('AppEngine').registerComponent = (className, component) ->
-  if componentRegistry[className]
-    console.debug "RegisterComponent: Overriding component #{componentRegistry[className].getName()} with selector '#{className}' for component #{component.getName()}"
+AppEngine = __t('AppEngine')
+AppEngine.componentRegistry = {}
+
+AppEngine.registerComponent = (className, component) ->
+  if AppEngine.componentRegistry[className]
+    console.debug "RegisterComponent: Overriding component #{AppEngine.componentRegistry[className].getName()} with selector '#{className}' for component #{component.getName()}"
   else
     console.debug "RegisterComponent: Setting component #{component.getName()} by selector '#{className}'"
 
-  componentRegistry[className] = component
+  AppEngine.componentRegistry[className] = component
 
 
-__t('AppEngine').registryGetTypeFromTypeShortName = (name) ->
-  return componentRegistry[name] if componentRegistry[name]
+AppEngine.registryGetTypeFromTypeShortName = (name) ->
+  return AppEngine.componentRegistry[name] if AppEngine.componentRegistry[name]
   return null
 
 
-__t('AppEngine').initialiseComponentRegistry = (scopes) ->
+AppEngine.initialiseComponentRegistry = (scopes) ->
   #taverse all components and add to registry
 
   scopes = [scopes] if !_.isArray(scopes)
 
-  loopEachObject = (component) ->
+  loopEachObject = (component, checkedList) ->
     if component and !component.__has_been_checked and _.isObject component
       component.__has_been_checked = true
+      checkedList.push(component)
 
       #check all functions
-      for componentName in _.functions(component)
-        #check all the functions of this function
-        for name in _.functions(component[componentName])
-          if name == 'getShortNameIdentification'
-            if !component[componentName].isAbstract()
-              #this is the function for getting the Component Identification
-              #eg. Objects['Page']['getShortNameIdentification']()
-              try 
-                className = component[componentName][name]()
-                if className
-                  AppEngine.registerComponent(className, component[componentName])
-                  break;
-              catch e
-                console.log("dfa")
-                throw new AppEngine.Helpers.Error "Cannot get the correct IdentificationClass for the component: '#{componentName}'", e
-            else
-              console.debug "RegisterComponent: Component #{component[componentName].getName()} is marked as Abstract, not adding to registry"
+      if component.isAppEngineComponent && component.prototype
+        if !component.prototype.constructor.isAbstract()
+          #this is the function for getting the Component Identification
+          #eg. Objects['Page']['getShortNameIdentification']()
+          if component.prototype.constructor.getShortNameIdentification
+            try 
+              className = component.prototype.constructor.getShortNameIdentification()
 
+              if className
+                AppEngine.registerComponent(className, component)
+              else
+                console.warn "RegisterComponent: Component #{component.getName()} does not have a short name, not adding to registry"
+            catch e
+              throw new AppEngine.Helpers.Error "Cannot get the correct IdentificationClass for the component: '#{component.getName()}'", e
+          else 
+            console.debug "RegisterComponent: Component #{component.getName()} does not have a short name, not adding to registry"
+        else
+          console.debug "RegisterComponent: Component #{component.getName()} is marked as Abstract, not adding to registry"
 
       #go through each sub object
       for name in _.keys(component)
-        loopEachObject component[name]
+        loopEachObject component[name], checkedList
 
+  checkedCompList = []
   for scope in scopes
-    loopEachObject scope
+    loopEachObject scope, checkedCompList
+
+  for comp in checkedCompList
+    delete comp.__has_been_checked

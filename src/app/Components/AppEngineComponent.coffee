@@ -4,10 +4,7 @@ class AppEngineComponent extends AppEngine.Objects.JQueryObject
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['wrappedElement'])
   @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['wrappedElement'])
   @isAbstract: -> @ == AppEngineComponent
-
-  @getShortNameIdentification: ->
-    throw new Error "The Short Name Identification has not been specified for the component '#{@getName()}'"
-
+  @isAppEngineComponent = true
 
   constructor: (config) ->
     super(config)
