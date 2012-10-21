@@ -1,4 +1,5 @@
 #<< AppEngine/Helpers/Helpers
+#<< AppEngine/Helpers/Logger
 
 class StrictObject extends Backbone.Events
   @expectedParameters: []
@@ -19,6 +20,8 @@ class StrictObject extends Backbone.Events
 
     AppEngine.Helpers.applyToObject @__proto__.constructor.applyParameters, conf, @ if conf
 
+    #Setup static logger for each class extending this
+    @__proto__.logger = new AppEngine.Helpers.Logger(@) if !@__proto__.logger
 
 
 
