@@ -7,7 +7,7 @@ class ElementWrap
   createTree = (parent, components) ->
     if components.length > 0
       #there are still components to sort into a tree
-      comp = $j components[0]
+      comp = $j(components[0])
 
       if comp.closest(parent.el).length > 0
         #if this parent is the parent of
@@ -19,7 +19,7 @@ class ElementWrap
         createTree parent.parent, components
 
   @getTreeStructure: (startElement) ->
-    traversalStart = startElement or $j('body')
+    traversalStart = startElement or $j.find('body')
     startElement = startElement or $j
 
     components = startElement.find '.ae-comp'
