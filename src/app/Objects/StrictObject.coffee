@@ -11,6 +11,14 @@ class StrictObject extends Backbone.Events
       throw new Error "Unable to create instance of Abstract class '#{@.__proto__.constructor.getName()}'"
 
     #Check that all config params were passed through correctly
-    AppEngine.Helpers.assertParametersExist @.__proto__.constructor.expectedParameters, conf
-    AppEngine.Helpers.applyToObject @__proto__.constructor.applyParameters, conf, @
+    if @.__proto__.constructor.expectedParameters.length > 0
+      if conf
+        AppEngine.Helpers.assertParametersExist @.__proto__.constructor.expectedParameters, conf
+      else
+        throw new Error "StrictObject: There are required parameters but the options are not defined"
+
+    AppEngine.Helpers.applyToObject @__proto__.constructor.applyParameters, conf, @ if conf
+
+
+
 
