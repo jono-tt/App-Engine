@@ -2,9 +2,10 @@ class MockJQueryObject
   constructor: (options) ->
     options = options or {}
     @attributes = options.attributes or {}
-    @data = options.data or {}
+    @_data = options.data or {}
 
     spyOn(@, 'attr').andCallThrough()
+    spyOn(@, 'removeAttr').andCallThrough()
     spyOn(@, 'find')
     spyOn(@, 'closest')
     spyOn(@, 'append').andCallThrough()
@@ -12,18 +13,27 @@ class MockJQueryObject
     spyOn(@, 'children').andCallThrough()
     spyOn(@, 'addClass').andCallThrough()
     spyOn(@, 'removeClass').andCallThrough()
+    spyOn(@, 'fadeIn').andCallThrough()
+    spyOn(@, 'fadeOut').andCallThrough()
+    spyOn(@, 'css').andCallThrough()
 
   attr: (name) ->
     return @attributes[name]
+
+  removeAttr: (name) ->
+    delete @attributes[name]
   
   setAttr: (name, value) ->
     @attributes[name] = value
   
   data: (name) ->
-    return @data[name]
+    if name
+      return @_data[name]
+    else
+      return @_data
   
   setData: (name, value) ->
-    @data[name] = value
+    @_data[name] = value
 
   html: (value) ->
     if(_.isUndefined(value))
@@ -34,6 +44,12 @@ class MockJQueryObject
   addClass: () ->
 
   removeClass: () ->
+
+  css: (style) ->
+    if @style
+      @style = style
+    else
+      return @style or ''
 
   append: (html) ->
     if @htmlData
@@ -69,3 +85,9 @@ class MockJQueryObject
   find: (selector) ->
 
   closest: (element) ->
+
+  fadeIn: (duration, cb) ->
+    cb()
+
+  fadeOut: (duration, cb) ->
+    cb()
