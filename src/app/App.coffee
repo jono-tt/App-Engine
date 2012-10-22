@@ -4,14 +4,16 @@
 class App
   constructor: (cb) ->
     try 
-      @appConfig = AppEngine.Helpers.getApplicationConfig()
+      @appConfig = AppEngine.Helpers.getApplicationConfig() || {}
     catch e
       console.error "Error: Loading application config"
       e.log() if _.isFunction(e.log)
       return
 
+    #setup logger
+    AppEngine.Helpers.Logger.setupLogger(@appConfig.logger)
+
     #configure the application
-    @setupLogger()
     console.debug "AppConfig loaded: #{JSON.stringify @appConfig}";
 
     @setupComponentRegistry()
@@ -55,36 +57,6 @@ class App
     #initialise component registry
     AppEngine.initialiseComponentRegistry(scopes)
     
-
-  setupLogger: ->
-    console.isDebug = @appConfig.logger and @appConfig.logger.debug == "true"
-    dontWarn = @appConfig.logger and @appConfig.logger.warn == "false"
-    dontLog = @appConfig.logger and @appConfig.logger.log == "false"
-    dontError = @appConfig.logger and @appConfig.logger.error == "false"
-
-    if !console.isDebug
-      console.debug = ->
-
-    if dontWarn
-      console.warn = -> 
-      console.isWarn = false
-    else
-      console.isWarn = true
-
-    if dontLog
-      console.isLog = false
-      console.log "Disabling console 'log'"
-      console.log = -> 
-    else
-      console.isLog = true
-
-    if dontError
-      console.isError = false
-      console.log "Disabling console 'error'"
-      console.error = -> 
-    else
-      console.isError = true
-
 
 
 
