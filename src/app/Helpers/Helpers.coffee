@@ -94,14 +94,7 @@ helpers.getConfigFromElement = (el) ->
 helpers.getTypeFromConfig = (config, defaultType) ->
   type
   if config['type']
-    #check the registry first
-    type = AppEngine.registryGetTypeFromTypeShortName(config['type'])
-
-    if(!type)
-      types = helpers.getObjectByPath config['type'], $OuterScope
-      if(types.length > 0)
-        type = types[0]
-
+    type = helpers.getTypeFromTypeName(config['type'])
 
   #log as debug console
   if type == defaultType
@@ -116,6 +109,16 @@ helpers.getTypeFromConfig = (config, defaultType) ->
 
   return type
 
+helpers.getTypeFromTypeName = (typeName) ->
+  #check the registry first
+  type = AppEngine.registryGetTypeFromTypeShortName(typeName)
+
+  if(!type)
+    types = helpers.getObjectByPath typeName, $OuterScope
+    if(types and types.length > 0)
+      type = types[0]
+
+  return type
 
 helpers.createObjectFromType = (config, type, cb) ->
   #create a new object of 'type'

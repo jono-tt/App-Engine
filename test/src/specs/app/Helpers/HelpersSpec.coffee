@@ -106,6 +106,10 @@ describe "Helpers Spec", ->
 
       expect(type).toEqual(String)
 
+    it "should get a type from a type name", ->
+      type = help.getTypeFromTypeName "String"
+      expect(type).toEqual String
+
 
   describe "Create Object from Type", ->
     it "should create a new String", ->
