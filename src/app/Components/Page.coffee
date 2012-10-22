@@ -60,32 +60,51 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   #SECTION USED FOR SHOWING AND HIDING PAGES
   beforePageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
-    console.debug("Page: '#{@id}': beforePageShow")
+    if(oldPage == @)
+      console.debug("Page: '#{@id}': beforePageShow: The same page, different parameters")
+    else 
+      console.debug("Page: '#{@id}': beforePageShow")
+
     cb()
 
   pageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
-    console.debug("Page: '#{@id}': pageShow")
-    cb()
+    @currentPageParams = pageParams
+
+    if(oldPage != @)
+      if oldPage
+        console.debug "Page: pageShow: '#{@id}': Transitioning from page '#{oldPage.id}'"
+      else 
+        console.debug "Page: pageShow: '#{@id}': Transitioning to page. No old page present, perhaps first load.'"
+
+    else
+      console.debug "Page: pageShow: '#{@id}': This is the same page, dont transition"
+      cb()
 
   afterPageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
     console.debug("Page: '#{@id}': afterPageShow")
-    if @childPageManager
-      #this has child pages that need to be called
-      if childPagesWithParams.length > 0
-        #there are parameters for the child page manager
+    
+    if childPagesWithParams and childPagesWithParams.length > 0
+      if @childPageManager
+        console.debug "Page: '#{@id}': Has child page params, calling child page manager"
         return @childPageManager.navigateToPage(childPagesWithParams, cb)
       else
-        #navigate to the default page o the child page manager
+        console.debug "Page: '#{@id}': Has child page params, no Child Page Manager, continuing"
+    else
+      if @childPageManager
+        console.debug "Page: '#{@id}': Child Manager default page being called"
+        #TODO: Should the default page be shown?
         return @childPageManager.navigateToDefaultPage(cb)
     
     cb()
 
   beforePageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-    console.debug("Page: '#{@id}': beforePageHide")
-    if(!pageParams or !pageParams.dont)
-      cb()
-    else
-      return false
+    if(newPage == @)
+      console.debug("Page: '#{@id}': beforePageHide: The same page, different parameters")
+    else 
+      console.debug("Page: '#{@id}': beforePageHide")
+
+    cb()
+    return true
 
   # pageHide: (newPage, pageParams, childPagesWithParams, cb) ->
   #   console.debug("Page: '#{@id}': pageHide")
