@@ -1,12 +1,15 @@
 #<< AppEngine/Helpers/Helpers
 #<< AppEngine/Helpers/Logger
+#<< AppEngine/Objects/Object
 
-class StrictObject extends Backbone.Events
+class StrictObject extends AppEngine.Objects.Object
   @expectedParameters: []
   @applyParameters: []
   @isAbstract: -> @ == StrictObject
 
   constructor: (conf) ->
+    super(conf)
+    
     #check that this is not an abstract class
     if @__proto__.constructor.isAbstract()
       throw new Error "Unable to create instance of Abstract class '#{@.__proto__.constructor.getName()}'"
@@ -20,8 +23,6 @@ class StrictObject extends Backbone.Events
 
     AppEngine.Helpers.applyToObject @__proto__.constructor.applyParameters, conf, @ if conf
 
-    #Setup static logger for each class extending this
-    @__proto__.logger = new AppEngine.Helpers.Logger(@) if !@__proto__.logger
 
 
 
