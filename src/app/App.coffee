@@ -1,3 +1,5 @@
+#<< AppEngine/Helpers/Helpers
+
 @$j = jQuery.noConflict()
 @$OuterScope = @;
 

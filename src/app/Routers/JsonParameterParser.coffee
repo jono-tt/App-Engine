@@ -1,4 +1,5 @@
-class JsonParameterParser
+#<< AppEngine/Objects/Object
+class JsonParameterParser extends AppEngine.Objects.Object
   constructor: ->
     @regex = new RegExp("([^/]*)/?([^/]*)?/?", '')
 
@@ -28,7 +29,7 @@ class JsonParameterParser
         return $j.parseJSON urlDecode(paramString)
       catch e
         #do nothing, just cannot parse JSON
-        console.debug "Cannot parse '", urlDecode(paramString), "' to JSON"
+        @logger.debug "Cannot parse '", urlDecode(paramString), "' to JSON"
 
     return null
 
@@ -48,5 +49,5 @@ class JsonParameterParser
         return routingObjects
       else
         #parsing failed
-        console.log "Error parsing routingData", routingData
+        @logger.log "Error parsing routingData", routingData
 

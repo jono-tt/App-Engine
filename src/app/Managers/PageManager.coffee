@@ -39,9 +39,9 @@ class PageManager extends AppEngine.Objects.StrictObject
         if !@specialPages.defaultPage
           if pages.length > 0
             @specialPages.defaultPage = pages[0]
-            console.debug "PageManager: Default page was not found so reverting to using '#{@specialPages.defaultPage.id}' as default"
+            @logger.debug "PageManager: Default page was not found so reverting to using '#{@specialPages.defaultPage.id}' as default"
           else
-            console.warn "PageManager: Default page not set as there are no pages"
+            @logger.warn "PageManager: Default page not set as there are no pages"
 
         cb()
 
@@ -57,14 +57,14 @@ class PageManager extends AppEngine.Objects.StrictObject
         if @isPageComponent comp
           pageWrappers.push comp
         else
-          console.log "PageManager: Component is outside of a page so cannot be created: "
-          console.log comp.el
+          @logger.log "PageManager: Component is outside of a page so cannot be created: "
+          @logger.log comp.el
 
       if pageWrappers.length > 0
         #go through each page wrapper and create a page
         AppEngine.Helpers.asyncCallEach pageWrappers, addPage.createDelegate(@), pagesInitialiseComplete.createDelegate(@)
       else
-        console.warn "PageManager: Unable to find any Pages in the web component root"
+        @logger.warn "PageManager: Unable to find any Pages in the web component root"
         cb()
     catch e
       throw new AppEngine.Helpers.Error "PageManager: initialising", e
@@ -74,23 +74,23 @@ class PageManager extends AppEngine.Objects.StrictObject
     if page.isDefaultPage
       if !@specialPages.defaultPage
         @specialPages.defaultPage = page
-        console.debug "PageManager: Default page has been set to '#{@specialPages.defaultPage.id}'"
+        @logger.debug "PageManager: Default page has been set to '#{@specialPages.defaultPage.id}'"
       else
-        console.warn "PageManager: Page '#{@specialPages.defaultPage.id} is already set as default. Ignoring change to '#{page.id}'"
+        @logger.warn "PageManager: Page '#{@specialPages.defaultPage.id} is already set as default. Ignoring change to '#{page.id}'"
 
     if page.isNotFoundPage
       if !@specialPages.notFoundPage
         @specialPages.notFoundPage = page
-        console.debug "PageManager: Not Found page has been set to '#{@specialPages.notFoundPage.id}'"
+        @logger.debug "PageManager: Not Found page has been set to '#{@specialPages.notFoundPage.id}'"
       else
-        console.warn "PageManager: Page '#{@specialPages.notFoundPage.id} is already set as Not Found page. Ignoring change to '#{page.id}'"
+        @logger.warn "PageManager: Page '#{@specialPages.notFoundPage.id} is already set as Not Found page. Ignoring change to '#{page.id}'"
 
     if page.isErrorPage
       if !@specialPages.errorPage
         @specialPages.errorPage = page
-        console.debug "PageManager: Error page has been set to '#{@specialPages.errorPage.id}'"
+        @logger.debug "PageManager: Error page has been set to '#{@specialPages.errorPage.id}'"
       else
-        console.warn "PageManager: Page '#{@specialPages.errorPage.id} is already set as Error page. Ignoring change to '#{page.id}'"
+        @logger.warn "PageManager: Page '#{@specialPages.errorPage.id} is already set as Error page. Ignoring change to '#{page.id}'"
 
   #This will return the first level pages from the list of components
   getPageElementsFromComponents: (components, pages) ->
@@ -127,44 +127,44 @@ class PageManager extends AppEngine.Objects.StrictObject
         #navigate to the page
         return @_navigateToPage page, pageParams, pagenamesWithParams, navigationComplete
       else
-        console.debug "PageManager: Unable to find page '#{pagenamesWithParams[0].pageName}', routing to page not found"  
+        @logger.debug "PageManager: Unable to find page '#{pagenamesWithParams[0].pageName}', routing to page not found"  
         return @navigateToPageNotFound(pagenamesWithParams, navigationComplete)
 
     #cannot find page, navigate to default
-    console.debug "PageManager: Pagenames with params is empty, routing to default"
+    @logger.debug "PageManager: Pagenames with params is empty, routing to default"
     return @navigateToDefaultPage(navigationComplete)   
 
   navigateToPageNotFound: (pagenamesWithParams, navigationComplete) ->
     if @specialPages.notFoundPage
-      console.debug "PageManager: Navigating to Not Found page '#{@specialPages.notFoundPage.id}'"
+      @logger.debug "PageManager: Navigating to Not Found page '#{@specialPages.notFoundPage.id}'"
       return @_navigateToPage(@specialPages.notFoundPage, null, [], navigationComplete)
     else
-      console.debug "PageManager: Not Found page has not been set, route to default page"
+      @logger.debug "PageManager: Not Found page has not been set, route to default page"
       return @navigateToDefaultPage(navigationComplete)
 
   navigateToErrorPage: (pagenamesWithParams, navigationComplete) ->
     if @specialPages.errorPage
-      console.debug "PageManager: Navigating to Error page '#{@specialPages.errorPage.id}'"
+      @logger.debug "PageManager: Navigating to Error page '#{@specialPages.errorPage.id}'"
       return @_navigateToPage(@specialPages.errorPage, null, [], navigationComplete)
     else
-      console.debug "PageManager: Error page has not been set, route to default page"
+      @logger.debug "PageManager: Error page has not been set, route to default page"
       return @navigateToDefaultPage(navigationComplete)
 
   navigateToDefaultPage: (navigationComplete) ->
     if @specialPages.defaultPage
-      console.debug "PageManager: Navigating to default page '#{@specialPages.defaultPage.id}'"
+      @logger.debug "PageManager: Navigating to default page '#{@specialPages.defaultPage.id}'"
       return @_navigateToPage(@specialPages.defaultPage, null, [], navigationComplete)
     else
-      console.error "PageManager: No default page so just exiting with return of false"
+      @logger.error "PageManager: No default page so just exiting with return of false"
       return false
 
   _navigateToPage: (newpage, pageParams, childPagesAndParams, navigationComplete) ->
     afterPageShownComplete = ->
-      console.debug "PageManager: Transition to page #{newpage.id} complete"
+      @logger.debug "PageManager: Transition to page #{newpage.id} complete"
       navigationComplete()
 
     pageShown = ->
-      console.debug "PageManager: Page #{newpage.id} shown, firing afterPageShow"
+      @logger.debug "PageManager: Page #{newpage.id} shown, firing afterPageShow"
       @currentPage = newpage
       newpage.afterPageShow @currentPage, pageParams, childPagesAndParams, afterPageShownComplete.createDelegate(@)
     

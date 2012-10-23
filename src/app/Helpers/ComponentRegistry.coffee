@@ -1,12 +1,15 @@
+#<< AppEngine/Helpers/Logger
+
 #create a registry for the application and the components that can be registered by a class name
 AppEngine = __t('AppEngine')
 AppEngine.componentRegistry = {}
+logger = new AppEngine.Helpers.Logger(@)
 
 AppEngine.registerComponent = (className, component) ->
   if AppEngine.componentRegistry[className]
-    console.debug "RegisterComponent: Overriding component #{AppEngine.componentRegistry[className].getName()} with selector '#{className}' for component #{component.getName()}"
+    logger.debug "RegisterComponent: Overriding component #{AppEngine.componentRegistry[className].getName()} with selector '#{className}' for component #{component.getName()}"
   else
-    console.debug "RegisterComponent: Setting component #{component.getName()} by selector '#{className}'"
+    logger.debug "RegisterComponent: Setting component #{component.getName()} by selector '#{className}'"
 
   AppEngine.componentRegistry[className] = component
 
@@ -38,13 +41,13 @@ AppEngine.initialiseComponentRegistry = (scopes) ->
               if className
                 AppEngine.registerComponent(className, component)
               else
-                console.warn "RegisterComponent: Component #{component.getName()} does not have a short name, not adding to registry"
+                logger.warn "RegisterComponent: Component #{component.getName()} does not have a short name, not adding to registry"
             catch e
               throw new AppEngine.Helpers.Error "Cannot get the correct IdentificationClass for the component: '#{component.getName()}'", e
           else 
-            console.debug "RegisterComponent: Component #{component.getName()} does not have a short name, not adding to registry"
+            logger.debug "RegisterComponent: Component #{component.getName()} does not have a short name, not adding to registry"
         else
-          console.debug "RegisterComponent: Component #{component.getName()} is marked as Abstract, not adding to registry"
+          logger.debug "RegisterComponent: Component #{component.getName()} is marked as Abstract, not adding to registry"
 
       #go through each sub object
       for name in _.keys(component)

@@ -1,11 +1,18 @@
 class Logger
   constructor: (klass) ->
-    klassName = klass.constructor.getName()
+    klassName = null
+    logStartValue = ""
+
+    if klass.constructor && klass.constructor.getName
+      klassName = klass.constructor.getName() 
+      logStartValue = klassName + ": "
+    else if typeof klass == "String"
+      logStartValue = klass
 
     #set logger
     if Logger.isLog or Logger.logClasses[klassName]
       @log = ->
-        args = getLogMessage klassName, _.toArray(arguments)
+        args = getLogMessage logStartValue, _.toArray(arguments)
         console.log.apply(klass, args)
     else
       @log = -> false
@@ -13,7 +20,7 @@ class Logger
     #set debug logger
     if Logger.isDebug or Logger.debugClasses[klassName]
       @debug = ->
-        args = getLogMessage klassName, _.toArray(arguments)
+        args = getLogMessage logStartValue, _.toArray(arguments)
         console.debug.apply(klass, args)
     else
       @debug = -> false
@@ -21,7 +28,7 @@ class Logger
     #set warn logger
     if Logger.isWarn or Logger.warnClasses[klassName]
       @warn = ->
-        args = getLogMessage klassName, _.toArray(arguments)
+        args = getLogMessage logStartValue, _.toArray(arguments)
         console.warn.apply(klass, args)
     else
       @warn = -> false
@@ -29,18 +36,25 @@ class Logger
     #set error logger
     if Logger.isError or Logger.errorClasses[klassName]
       @error = ->
-        args = getLogMessage klassName, _.toArray(arguments)
+        args = getLogMessage logStartValue, _.toArray(arguments)
         console.error.apply(klass, args)
+
+      @logError = (message, e) ->
+        if _.isFunction(e.log)
+          e.log() 
+        else
+          @error e
     else
       @error = -> false
+      @logError = (e) -> false
 
 
-  getLogMessage = (klassName, args) ->
+  getLogMessage = (logStartValue, args) ->
     if args and args.length > 0
-      args[0] = "#{klassName}: " + args[0]
+      args[0] = logStartValue + args[0]
       return args
     else
-      return [ "#{klassName}: " ]
+      return [ logStartValue ]
 
 
   @debugClasses = {}

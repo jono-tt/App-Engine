@@ -1,5 +1,8 @@
+#<< AppEngine/Helpers/Logger
 
 class AppRouter extends Backbone.Router
+  logger = new AppEngine.Helpers.Logger(@)
+  
   routes: {
     "*splat": "routeChange"
   }
@@ -24,7 +27,7 @@ class AppRouter extends Backbone.Router
   routeChange: (params) ->
     navigationComplete = ->
       @previousParams = params
-      console.debug "AppRouter: All page transitions complete", params
+      logger.debug "AppRouter: All page transitions complete", params
 
     if params
       pageParams = @parameterParser.parseParameters(params)

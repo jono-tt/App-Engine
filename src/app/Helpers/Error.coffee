@@ -1,4 +1,7 @@
+#<< AppEngine/Helpers/Logger
+
 class Error extends Error
+  logger = new AppEngine.Helpers.Logger(@)
 
   constructor: (message, innerError, errorObject) ->
     #apply all to this apply
@@ -17,20 +20,20 @@ class Error extends Error
     if @innerError instanceof AppEngine.Helpers.Error
       _log.call(@innerError)
     else if @innerError
-      console.group "Error: #{@innerError.message}"
+      @logger.group "Error: #{@innerError.message}"
 
-    console.log "#{@message}"
+    @logger.log "#{@message}"
     if(@errorObject)
-      console.log @errorObject
+      @logger.log @errorObject
 
   log: ->
     _log.call(this)
 
-    if console.isDebug
-      console.group "Stack"
-      console.debug @getRootError().stack
-      console.groupEnd()
-      console.groupEnd()
+    if @logger.isDebug
+      @logger.group "Stack"
+      @logger.debug @getRootError().stack
+      @logger.groupEnd()
+      @logger.groupEnd()
 
   toString: ->
     return @message + "\n" + @innerError.toString() if @innerError instanceof AppEngine.Helpers.Error

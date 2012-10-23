@@ -8,25 +8,25 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   constructor: (config)->
     super config
-    console.debug "Page: '#{@id}': object has been created"
+    @logger.debug "Page: '#{@id}': object has been created"
 
   initialise: (cb) ->
     pageInitialised = ->
-      console.debug "Page: '#{@id}': End initialise of page"
+      @logger.debug "Page: '#{@id}': End initialise of page"
       cb()
 
     callback = ->
       if @childPageManager
         pageManagerInitialised = ->
-          console.debug "Page: '#{@id}': End initialise child page manager"
+          @logger.debug "Page: '#{@id}': End initialise child page manager"
           pageInitialised.call(@)
 
-        console.debug "Page: '#{@id}': Start initialise child page manager"
+        @logger.debug "Page: '#{@id}': Start initialise child page manager"
         @childPageManager.initialise(pageManagerInitialised.createDelegate @)
       else 
         pageInitialised.call(@)
 
-    console.debug "Page: '#{@id}': Start initialise of page"
+    @logger.debug "Page: '#{@id}': Start initialise of page"
     super(callback.createDelegate @)
 
   addChild: (component, cb) ->
@@ -61,9 +61,9 @@ class Page extends AppEngine.Components.AppEngineComponent
   #SECTION USED FOR SHOWING AND HIDING PAGES
   beforePageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
     if(oldPage == @)
-      console.debug("Page: '#{@id}': beforePageShow: The same page, different parameters")
+      @logger.debug("Page: '#{@id}': beforePageShow: The same page, different parameters")
     else 
-      console.debug("Page: '#{@id}': beforePageShow")
+      @logger.debug("Page: '#{@id}': beforePageShow")
 
     cb()
 
@@ -72,26 +72,26 @@ class Page extends AppEngine.Components.AppEngineComponent
 
     if(oldPage != @)
       if oldPage
-        console.debug "Page: pageShow: '#{@id}': Transitioning from page '#{oldPage.id}'"
+        @logger.debug "Page: pageShow: '#{@id}': Transitioning from page '#{oldPage.id}'"
       else 
-        console.debug "Page: pageShow: '#{@id}': Transitioning to page. No old page present, perhaps first load.'"
+        @logger.debug "Page: pageShow: '#{@id}': Transitioning to page. No old page present, perhaps first load.'"
 
     else
-      console.debug "Page: pageShow: '#{@id}': This is the same page, dont transition"
+      @logger.debug "Page: pageShow: '#{@id}': This is the same page, dont transition"
       cb()
 
   afterPageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
-    console.debug("Page: '#{@id}': afterPageShow")
+    @logger.debug("Page: '#{@id}': afterPageShow")
     
     if childPagesWithParams and childPagesWithParams.length > 0
       if @childPageManager
-        console.debug "Page: '#{@id}': Has child page params, calling child page manager"
+        @logger.debug "Page: '#{@id}': Has child page params, calling child page manager"
         return @childPageManager.navigateToPage(childPagesWithParams, cb)
       else
-        console.debug "Page: '#{@id}': Has child page params, no Child Page Manager, continuing"
+        @logger.debug "Page: '#{@id}': Has child page params, no Child Page Manager, continuing"
     else
       if @childPageManager
-        console.debug "Page: '#{@id}': Child Manager default page being called"
+        @logger.debug "Page: '#{@id}': Child Manager default page being called"
         #TODO: Should the default page be shown?
         return @childPageManager.navigateToDefaultPage(cb)
     
@@ -99,17 +99,17 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   beforePageHide: (newPage, pageParams, childPagesWithParams, cb) ->
     if(newPage == @)
-      console.debug("Page: '#{@id}': beforePageHide: The same page, different parameters")
+      @logger.debug("Page: '#{@id}': beforePageHide: The same page, different parameters")
     else 
-      console.debug("Page: '#{@id}': beforePageHide")
+      @logger.debug("Page: '#{@id}': beforePageHide")
 
     cb()
     return true
 
   # pageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-  #   console.debug("Page: '#{@id}': pageHide")
+  #   @logger.debug("Page: '#{@id}': pageHide")
   #   cb()
 
   # afterPageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-  #   console.debug("Page: '#{@id}': afterPageHide")
+  #   @logger.debug("Page: '#{@id}': afterPageHide")
   #   cb()
