@@ -8,25 +8,27 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   constructor: (config)->
     super config
-    @logger.debug "Page: '#{@id}': object has been created"
+    @logger.debug "'#{@id}': object has been created"
+
+    @transition = new AppEngine.Transitions.ShowHideTransitionHandler({ duration: 500 })
 
   initialise: (cb) ->
     pageInitialised = ->
-      @logger.debug "Page: '#{@id}': End initialise of page"
+      @logger.debug "'#{@id}': End initialise of page"
       cb()
 
     callback = ->
       if @childPageManager
         pageManagerInitialised = ->
-          @logger.debug "Page: '#{@id}': End initialise child page manager"
+          @logger.debug "'#{@id}': End initialise child page manager"
           pageInitialised.call(@)
 
-        @logger.debug "Page: '#{@id}': Start initialise child page manager"
+        @logger.debug "'#{@id}': Start initialise child page manager"
         @childPageManager.initialise(pageManagerInitialised.createDelegate @)
       else 
         pageInitialised.call(@)
 
-    @logger.debug "Page: '#{@id}': Start initialise of page"
+    @logger.debug "'#{@id}': Start initialise of page"
     super(callback.createDelegate @)
 
   addChild: (component, cb) ->
@@ -40,14 +42,14 @@ class Page extends AppEngine.Components.AppEngineComponent
       if pageComponents.length > 0
         @addChildPageComponents pageComponents
 
-      #create this as a normal component
+      #create this as a normal component (ie. not a page)
       @createChildComponent component, cb
 
   createChildComponent: (component, cb) ->
     try
       AppEngine.Helpers.createObjectByElementWrap component, { appConfig: @appConfig, page: @, wrappedElement: component }, cb
     catch e
-      throw new AppEngine.Helpers.Error "Page: Error occured creating component", e, component
+      throw new AppEngine.Helpers.Error "Error occured creating component", e, component
 
   addChildPageComponents: (components) ->
     @childPageManager = @pageManager.getChildPageManager() if !@childPageManager
@@ -61,9 +63,9 @@ class Page extends AppEngine.Components.AppEngineComponent
   #SECTION USED FOR SHOWING AND HIDING PAGES
   beforePageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
     if(oldPage == @)
-      @logger.debug("Page: '#{@id}': beforePageShow: The same page, different parameters")
+      @logger.debug("'#{@id}': beforePageShow: The same page, different parameters")
     else 
-      @logger.debug("Page: '#{@id}': beforePageShow")
+      @logger.debug("'#{@id}': beforePageShow")
 
     cb()
 
@@ -72,26 +74,27 @@ class Page extends AppEngine.Components.AppEngineComponent
 
     if(oldPage != @)
       if oldPage
-        @logger.debug "Page: pageShow: '#{@id}': Transitioning from page '#{oldPage.id}'"
+        @logger.debug "pageShow: '#{@id}': Transitioning from page '#{oldPage.id}'"
       else 
-        @logger.debug "Page: pageShow: '#{@id}': Transitioning to page. No old page present, perhaps first load.'"
+        @logger.debug "pageShow: '#{@id}': Transitioning to page. No old page present, perhaps first load.'"
 
+      @transition.doTransition(oldPage, @, cb)
     else
-      @logger.debug "Page: pageShow: '#{@id}': This is the same page, dont transition"
+      @logger.debug "pageShow: '#{@id}': This is the same page, dont transition"
       cb()
 
   afterPageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
-    @logger.debug("Page: '#{@id}': afterPageShow")
+    @logger.debug("'#{@id}': afterPageShow")
     
     if childPagesWithParams and childPagesWithParams.length > 0
       if @childPageManager
-        @logger.debug "Page: '#{@id}': Has child page params, calling child page manager"
+        @logger.debug "'#{@id}': Has child page params, calling child page manager"
         return @childPageManager.navigateToPage(childPagesWithParams, cb)
       else
-        @logger.debug "Page: '#{@id}': Has child page params, no Child Page Manager, continuing"
+        @logger.debug "'#{@id}': Has child page params, no Child Page Manager, continuing"
     else
       if @childPageManager
-        @logger.debug "Page: '#{@id}': Child Manager default page being called"
+        @logger.debug "'#{@id}': Child Manager default page being called"
         #TODO: Should the default page be shown?
         return @childPageManager.navigateToDefaultPage(cb)
     
@@ -99,17 +102,41 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   beforePageHide: (newPage, pageParams, childPagesWithParams, cb) ->
     if(newPage == @)
-      @logger.debug("Page: '#{@id}': beforePageHide: The same page, different parameters")
-    else 
-      @logger.debug("Page: '#{@id}': beforePageHide")
+      @logger.debug "#{@id}': beforePageHide: The same page, different parameters"
+    else
+      @logger.debug "'#{@id}': beforePageHide: page has changed, check components are ok to continue"
 
+      if @triggerEventWithCancelOption("beforePageHide", [newPage, pageParams])
+        @logger.debug "'#{@id}': Components requested stopping of page hide"
+        return false
+
+    if @childPageManager
+      childPage = @childPageManager.getCurrentPage()
+      if childPage
+        @logger.debug "'#{@id}': Calling beforePageHide for child page '#{childPage.id}"
+        return childPage.beforePageHide newPage, pageParams, childPagesWithParams, cb
+
+
+    @logger.debug "'#{@id}': beforePageHide is continuing to hide "        
     cb()
     return true
 
+  triggerEventWithCancelOption: (eventName, args) ->
+    doCancel = false
+
+    cancel = (mustCancel) ->
+      doCancel = doCancel || mustCancel
+
+    newArgs = _.union([cancel], args)
+
+    this.trigger(eventName, newArgs)
+    return doCancel
+
   # pageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-  #   @logger.debug("Page: '#{@id}': pageHide")
+  #   @logger.debug("'#{@id}': pageHide")
   #   cb()
 
   # afterPageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-  #   @logger.debug("Page: '#{@id}': afterPageHide")
+  #   @logger.debug("'#{@id}': afterPageHide")
   #   cb()
+

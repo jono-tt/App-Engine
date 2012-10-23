@@ -1,0 +1,12 @@
+.hide {
+  display: none;
+}
+
+.pseudo-page {
+  position: absolute;
+  min-height: 100px;
+}
+
+.transition-in {
+  display: none;
+}

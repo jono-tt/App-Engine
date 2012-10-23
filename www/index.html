@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="css/app-engine.css" />
 
     <script src="js/app-debug.js"></script>
     <script type="text/javascript">
@@ -20,16 +21,21 @@
   </head>
   <body>
     My test Page
-
-    <div id="test1" class="ae-comp pseudo-page" data-type="app-engine-page" data-transition-type="test">
-      <div id="test2" class="ae-comp pseudo-page" data-type="app-engine-page" >
+    <div style="min-height: 400px;">
+      <div id="test1" class="ae-comp pseudo-page hide" data-type="app-engine-page" data-transition-type="test" data-is-not-found-page="true">
+        <div>Page1</div>
+        <div id="test2" class="ae-comp pseudo-page hide" data-type="app-engine-page" >
+          <div>Page2</div>
+        </div>
+        <div id="test3" class="ae-comp pseudo-page hide" data-type="app-engine-page">
+          <div>Page3</div>
+          <div class="ae-comp" data-type="say-hello">HELLO</div>
+        </div>
       </div>
-      <div id="test3" class="ae-comp pseudo-page" data-type="app-engine-page">
-        <div class="ae-comp" data-type="say-hello">HELLO</div>
-      </div>
-    </div>
 
-    <div id="test4" class="ae-comp pseudo-page" data-type="app-engine-page">
+      <div id="test4" class="ae-comp pseudo-page hide" data-type="app-engine-page" data-is-default-page="true">
+        <div>Page5</div>
+      </div>
     </div>
     <div>
       <div>
@@ -54,23 +60,6 @@
         "pageManager": {
           "pageDefaultConfig": {
           }
-        }
-      }
-    </script>
-
-    <script id='full-NOT-USED-app-config' type='text/template'>
-      {
-        "language": "en",
-        "logger": {
-          "debug": "true",
-          "error": "true"
-        },
-        "componentRegistryNamespaces": ["AppEngine"],
-        "pageManager": {
-          "pageDefaultConfig": {
-            "type": ""
-          },
-          "pageClassIdentifier": ""
         }
       }
     </script>
