@@ -11,7 +11,9 @@ class Object
   # (unless you're listening on `"all"`, which will cause your callback to
   # receive the true name of the event as the first argument).
   triggerWithCallback: (event, complete, cancel) ->
-    return @ if !(calls = @_callbacks)
+    if !(calls = @_callbacks)
+      complete()
+      return @
 
     rest = Array.prototype.slice.call(arguments, 3);
 
@@ -44,4 +46,7 @@ class Object
       for node in notificationList
         node.callback.apply(node.context or this, rest)
 
+    else
+      complete()
+      
     return this

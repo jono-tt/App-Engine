@@ -1,5 +1,16 @@
 describe "Object specs", ->
   describe "triggerWithCallback", ->
+    it "should call success if there are no listeners", ->
+      complete = jasmine.createSpy("complete")
+      cancel = jasmine.createSpy("cancel")
+
+      me = new AppEngine.Objects.Object
+
+      me.triggerWithCallback("test", complete, cancel)
+
+      expect(complete).toHaveBeenCalled()
+      expect(cancel).not.toHaveBeenCalled()
+
     it "should callback once all listeners have called success", ->
       me = new AppEngine.Objects.Object
 
