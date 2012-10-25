@@ -7,7 +7,7 @@ that can be logged out as a stack
 @example How to generate an custom error
   throw new AppEngine.Helpers.Error("Some custome error message", new Error("Original error"))
 ###
-class Error extends @Error
+class Error
   ###
   @private
   ###
@@ -45,11 +45,11 @@ class Error extends @Error
     if @innerError instanceof AppEngine.Helpers.Error
       _log.call(@innerError)
     else if @innerError
-      @logger.group "Error: #{@innerError.message}"
+      logger.group "Error: #{@innerError.message}"
 
-    @logger.log "#{@message}"
+    logger.log "#{@message}"
     if(@errorObject)
-      @logger.log @errorObject
+      logger.log @errorObject
 
   ###
   Write the full error stack out to the console
@@ -57,8 +57,8 @@ class Error extends @Error
   log: ->
     _log.call(this)
 
-    if @logger.isDebug
-      @logger.group "Stack"
-      @logger.debug @getRootError().stack
-      @logger.groupEnd()
-      @logger.groupEnd()
+    if logger.isDebug
+      logger.group "Stack"
+      logger.debug @getRootError().stack
+      logger.groupEnd()
+      logger.groupEnd()

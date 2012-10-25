@@ -48,6 +48,11 @@ class Logger
       @error = -> false
       @logError = (e) -> false
 
+  group: ->
+    console.group.apply(this, arguments) if console.group
+
+  groupEnd: ->
+    console.groupEnd.apply(this, arguments) if console.groupEnd
 
   getLogMessage = (logStartValue, args) ->
     if args and args.length > 0
