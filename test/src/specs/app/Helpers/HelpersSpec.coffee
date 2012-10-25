@@ -73,7 +73,7 @@ describe "Helpers Spec", ->
     it "should get a config from an element", ->
       el = new MockJQueryObject({
         attributes: {
-          id: "test"
+          name: "test"
         },
         data: {
           foo: "2",

@@ -14,7 +14,7 @@ Internal Dependencies: (Files included in Vendors folders)
 
 Documentation:
   https://github.com/netzpirat/codo
-  
+
 
 
 Application Configs:
@@ -28,6 +28,7 @@ Application Configs:
     },
     "componentRegistryNamespaces": ["AppEngine"],
     "pageManager": {
+      "type": "ClassName [Default AppEngine.Managers.PageManager]",
       "pageDefaultConfig": {
         "type": "[A Page Type]"
       },

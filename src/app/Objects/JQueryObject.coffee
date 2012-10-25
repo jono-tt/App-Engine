@@ -6,18 +6,8 @@ class JQueryObject extends AppEngine.Objects.StrictObject
 
   @isAbstract: -> @ == JQueryObject
 
-  constructor: (config) ->
+  constructor: (options) ->
     try
-      super config
+      super options
     catch e
-      throw new AppEngine.Helpers.Error "#{@constructor.getName()}: Creating new instance '#{config.id}'", e
-
-    @applyConfig @el
-
-  applyConfig: (el, config) ->
-    _.each el.data(), (value, name) ->
-      @applyConfigAttrib name, value
-    , @
-
-  applyConfigAttrib: (name, attribValue) ->
-    @[name] = attribValue
+      throw new AppEngine.Helpers.Error "#{@constructor.getName()}: Creating new instance '#{options.id}'", e

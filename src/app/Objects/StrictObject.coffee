@@ -7,8 +7,8 @@ class StrictObject extends AppEngine.Objects.Object
   @applyParameters: []
   @isAbstract: -> @ == StrictObject
 
-  constructor: (conf) ->
-    super(conf)
+  constructor: (options) ->
+    super(options)
     
     #check that this is not an abstract class
     if @__proto__.constructor.isAbstract()
@@ -16,12 +16,20 @@ class StrictObject extends AppEngine.Objects.Object
 
     #Check that all config params were passed through correctly
     if @.__proto__.constructor.expectedParameters.length > 0
-      if conf
-        AppEngine.Helpers.assertParametersExist @.__proto__.constructor.expectedParameters, conf
+      if options
+        AppEngine.Helpers.assertParametersExist @.__proto__.constructor.expectedParameters, options
       else
         throw new Error "StrictObject: There are required parameters but the options are not defined"
 
-    AppEngine.Helpers.applyToObject @__proto__.constructor.applyParameters, conf, @ if conf
+    @applyConfig(options) if options
+
+  applyConfig: (options) ->
+    _.each @__proto__.constructor.applyParameters, (name) ->
+      @applyConfigAttrib name, options[name]
+    , @
+
+  applyConfigAttrib: (name, attribValue) ->
+    @[name] = attribValue
 
 
 

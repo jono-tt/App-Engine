@@ -85,7 +85,7 @@ helpers.getConfigFromElement = (el) ->
   _.each el.data(), (value, name) ->
     config[name] = value
 
-  config["id"] = el.attr('id')
+  config["id"] = el.attr('name')
   config["el"] = el
 
   return config

@@ -22,40 +22,40 @@
   <body>
     My test Page
     <div style="min-height: 400px;">
-      <div id="test1" class="ae-comp pseudo-page hide" data-type="app-engine-page" data-transition-type="test" data-is-not-found-page="true">
+      <div name="test1" class="ae-comp pseudo-page hide" data-type="app-engine-page" data-transition-type="test" data-is-not-found-page="true">
         <div>Page1</div>
-        <div id="test2" class="ae-comp pseudo-page hide" data-type="app-engine-page" >
+        <div name="test2" class="ae-comp pseudo-page hide" data-type="app-engine-page" >
           <div>Page2</div>
         </div>
-        <div id="test3" class="ae-comp pseudo-page hide" style="min-height: 400px;" data-type="app-engine-page">
+        <div name="test3" class="ae-comp pseudo-page hide" style="min-height: 400px;" data-type="app-engine-page">
           <div>Page3</div>
-          <div id="test6" class="ae-comp pseudo-page hide" data-type="app-engine-page">
+          <div name="test6" class="ae-comp pseudo-page hide" data-type="app-engine-page">
             <div>Page6</div>
             <div class="ae-comp" data-type="say-hello">HELLO</div>
           </div>
-          <div id="test7" class="ae-comp pseudo-page hide" data-type="app-engine-page">
+          <div name="test7" class="ae-comp pseudo-page hide" data-type="app-engine-page">
             <div>Page7</div>
           </div>
         </div>
       </div>
 
-      <div id="test4" class="ae-comp pseudo-page hide" data-type="app-engine-page" data-is-default-page="true">
+      <div name="test4" class="ae-comp pseudo-page hide" data-type="app-engine-page" data-is-default-page="true">
         <div>Page5</div>
       </div>
     </div>
     <div>
       <div>
-        input: <input type="text" id="input"></input>
+        input: <input type="text" name="input"></input>
       </div>
       <div>
-        regex: <input type="text" id="reg"></input>
+        regex: <input type="text" name="reg"></input>
       </div>
       <div>
-        flags: <input type="text" id="flags"></input>
+        flags: <input type="text" name="flags"></input>
       </div>
     </div>
 
-    <script id='app-config' type='text/template'>
+    <script name='app-config' type='text/template'>
       {
         "language": "en",
         "logger": {
