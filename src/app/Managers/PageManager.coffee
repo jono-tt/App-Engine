@@ -7,7 +7,7 @@ class PageManager extends AppEngine.Objects.StrictObject
   constructor: (options = {}) ->
     try
       #set the default properies
-      _.defaults(config, { 
+      _.defaults(options, { 
         pageClassIdentifier: 'pseudo-page',
         pageDefaultConfig: {},
         components: []
