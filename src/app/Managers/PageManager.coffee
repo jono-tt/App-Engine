@@ -118,50 +118,42 @@ class PageManager extends AppEngine.Objects.StrictObject
   getCurrentPage: () ->
     return @currentPage
 
-  #Page Navigation
-  navigateToPage: (pagenamesWithParams, navigationComplete) ->
+  getPageAndParamsFromList: (pagenamesWithParams) ->
     if pagenamesWithParams.length > 0
       page = @pages[pagenamesWithParams[0].pageName]
 
       if page
-        #take the first page off the stack and retrieve the parameters
-        pageParams = pagenamesWithParams.shift().params
-
-        #navigate to the page
-        return @_navigateToPage page, pageParams, pagenamesWithParams, navigationComplete
+        @logger.debug "Page '#{page.id}' found from pagenamesWithParams"
+        return page: page, params: pagenamesWithParams[0].params
       else
-        @logger.debug "Unable to find page '#{pagenamesWithParams[0].pageName}', routing to page not found"  
-        return @navigateToPageNotFound(pagenamesWithParams, navigationComplete)
+        @logger.debug "Unable to find page '#{pagenamesWithParams[0].pageName}' in page manager", @
+    else if @specialPages.defaultPage
+      @logger.debug "No page names, Use Default Page '#{ @specialPages.defaultPage.id}'"
+      return page: @specialPages.defaultPage, params: {}
 
-    #cannot find page, navigate to default
-    @logger.debug "Pagenames with params is empty, routing to default"
-    return @navigateToDefaultPage(navigationComplete)   
-
-  navigateToPageNotFound: (pagenamesWithParams, navigationComplete) ->
     if @specialPages.notFoundPage
-      @logger.debug "Navigating to Not Found page '#{@specialPages.notFoundPage.id}'"
-      return @_navigateToPage(@specialPages.notFoundPage, null, [], navigationComplete)
+      @logger.debug "Page Not Found '#{ @specialPages.notFoundPage.id}' is being used"
+      return page: @specialPages.notFoundPage, params: {}
     else
-      @logger.debug "Not Found page has not been set, route to default page"
-      return @navigateToDefaultPage(navigationComplete)
+      @logger.debug "Unable to find a valid page to return. This should not occur, configure a Not Found Page"
 
-  navigateToErrorPage: (pagenamesWithParams, navigationComplete) ->
-    if @specialPages.errorPage
-      @logger.debug "Navigating to Error page '#{@specialPages.errorPage.id}'"
-      return @_navigateToPage(@specialPages.errorPage, null, [], navigationComplete)
-    else
-      @logger.debug "Error page has not been set, route to default page"
-      return @navigateToDefaultPage(navigationComplete)
+    return null
 
-  navigateToDefaultPage: (navigationComplete) ->
-    if @specialPages.defaultPage
-      @logger.debug "Navigating to default page '#{@specialPages.defaultPage.id}'"
-      return @_navigateToPage(@specialPages.defaultPage, null, [], navigationComplete)
-    else
-      @logger.error "No default page so just exiting with return of false"
-      return false
+  #Page Navigation
+  navigateToPage: (pagenamesWithParams, navigationComplete, cancelNavigation) ->
+    pageAndParams = @getPageAndParamsFromList(pagenamesWithParams)
 
-  _navigateToPage: (newpage, pageParams, childPagesAndParams, navigationComplete) ->
+    if pageAndParams
+      #take the first page off the stack and retrieve the parameters
+      pagenamesWithParams.shift()
+
+      #navigate to the page
+      return @_navigateToPage pageAndParams.page, pageAndParams.params, pagenamesWithParams, navigationComplete, cancelNavigation
+    else if cancelNavigation
+      cancelNavigation()
+
+
+  _navigateToPage: (newpage, pageParams, childPagesAndParams, navigationComplete, cancelNavigation) ->
     afterPageShownComplete = ->
       @logger.debug "Transition to page #{newpage.id} complete"
       navigationComplete()
@@ -175,17 +167,26 @@ class PageManager extends AppEngine.Objects.StrictObject
       newpage.pageShow @currentPage, pageParams, childPagesAndParams, pageShown.createDelegate(@)
 
     beforePageShown = ->
-      newpage.beforePageShow @currentPage, pageParams, childPagesAndParams, pageShow.createDelegate(@)
-
+      newpage.beforePageShow @currentPage, pageParams, childPagesAndParams, pageShow.createDelegate(@), cancelNavigation
 
     #if there is an old page, let the old page decide if it wants to opt out before navigaigation
-    if @currentPage
+    if @currentPage and cancelNavigation
       #if this returns immediately with false the navigation will be stopped
-      return @currentPage.beforePageHide newpage, pageParams, childPagesAndParams, beforePageShown.createDelegate(@)
+      @beforeCurrentPageHide newpage, pageParams, childPagesAndParams, beforePageShown.createDelegate(@), cancelNavigation
     else
-      beforePageShown.createDelegate(@)()
+      beforePageShown.call(this)
 
     return true
+
+  beforeCurrentPageHide: (newpage, pageParams, childPagesAndParams, navigationComplete, cancelNavigation) ->
+    #if there is an old page, let the old page decide if it wants to opt out before navigaigation
+    if @currentPage
+      @logger.debug "Page #{@currentPage.id} beforePageHide firing"
+      #if this returns immediately with false the navigation will be stopped
+      @currentPage.beforePageHide newpage, pageParams, childPagesAndParams, navigationComplete, cancelNavigation
+    else
+      navigationComplete(this)
+
 
 
 

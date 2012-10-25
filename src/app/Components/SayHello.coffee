@@ -18,4 +18,20 @@ class SayHello extends AppEngine.Components.PageComponent
 
     setTimeout(m.createDelegate(@), 2000)
 
+    @page.on("beforePageHide", @beforePageHide.createDelegate(@))
+    @page.on("afterPageShown", @afterPageShown.createDelegate(@))
+    @page.on("beforePageShown", @beforePageShown.createDelegate(@))
+
     super(cb)
+
+  afterPageShown: (oldPage, params) ->
+    @logger.log "afterPageShown", oldPage, params
+
+  beforePageShown: (oldPage, params) ->
+    @logger.log "beforePageShown", oldPage, params
+
+  beforePageHide: (success, fail, newPage, params) ->
+    if params and params.k
+      success();
+    else
+      fail();
