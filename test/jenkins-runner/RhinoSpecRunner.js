@@ -32,6 +32,11 @@ jasmine.getGlobal().console = {
 jasmineEnv.addReporter(new jasmine.JUnitXmlReporter("target/reports/"));
 jasmineEnv.addReporter(new jasmine.ConsoleReporter());
 
+//only set in the RhinoSpecRunner_Development.js
+if(!window.continuous) {
+  jasmineEnv.addReporter(new jasmine.JavaProcessFailOnErrorReporter());
+}
+
 jasmineEnv.execute();
 
 

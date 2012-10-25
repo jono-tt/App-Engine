@@ -9,7 +9,9 @@ var runTests = function() {
 
   load("lib/env.rhino.1.2.js");
   Envjs.scriptTypes['text/javascript'] = true;
-  window.location = "../../www/RhinoSpecRunner.html"
+  
+  window.continuous = true;
+  window.location = "../../www/RhinoSpecRunner.html";
 };
 
 var lastModifiedTests;
