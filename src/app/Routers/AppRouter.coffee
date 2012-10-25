@@ -20,19 +20,13 @@ class AppRouter extends Backbone.Router
   ###
   @param [Object] options app router properties
   @option pageManager [PageManager] the page manager to use
-  @option parameterParser [ParameterParser] the object that will parse out the page and parameters. (Default: JsonParameterParser)
+  @option parameterParser [ParameterParser] the object that will parse out the page and parameters
   ###
   constructor: (options = {}) ->
-    if !options.pageManager
-      throw new Error "Unable to start Router without an PageManager being passed into the Constructor"
-    
+    AppEngine.Helpers.assertParametersExist ["pageManager", "parameterParser"], options
     @pageManager = options.pageManager
+    @parameterParser = options.parameterParser
     
-    if options.parameterParser
-      @parameterParser = options.parameterParser
-    else
-      @parameterParser = new AppEngine.Routers.JsonParameterParser
-
     super(options)
 
   ###

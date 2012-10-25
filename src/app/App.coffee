@@ -24,12 +24,11 @@ class App
     engine = new AppEngine.Controllers.EngineController @appConfig;
 
     logError = (message, e) ->
-      if(console.isError)
-        console.error message
-        if _.isFunction(e.log)
-          e.log() 
-        else
-          console.error e
+      console.error message
+      if _.isFunction(e.log)
+        e.log() 
+      else
+        console.error e
 
     try
       console.log 'Engine initialise start'
@@ -38,7 +37,7 @@ class App
 
         try
           console.log 'Engine starting';
-          engine.start
+          engine.start()
           console.log 'Engine starting complete';
           cb()
         catch e

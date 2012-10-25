@@ -1,14 +1,26 @@
 class EngineController
-  constructor: (appConfig) ->
-    @appConfig = appConfig or {}
+  constructor: (appConfig = {}) ->
+    @appConfig = appConfig
 
   initialise: (cb) ->
     try
-      initRouter = ->
-        @appRouter = new AppEngine.Routers.AppRouter({ pageManager: @pageManager })
+
+      initRouterComplete = (router) ->
+        @appRouter = router
         cb()
 
-      @initPageManager initRouter.createDelegate(@)
+      initRouter = ->
+        AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig, pageManager: @pageManager, parameterParser: @parameterParser}, @appConfig.router, AppEngine.Routers.AppRouter, initRouterComplete.createDelegate(@)
+
+      initParameterParserComplete = (parser) ->
+        @parameterParser = parser
+        initRouter.call(@)
+
+      initParameterParser = ->
+        AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig}, @appConfig.parameterParser, AppEngine.Routers.JsonParameterParser, initParameterParserComplete.createDelegate(@)
+
+
+      @initPageManager initParameterParser.createDelegate(@)
     catch e
       throw new AppEngine.Helpers.Error "EngineController: initialising PageManager", e
 

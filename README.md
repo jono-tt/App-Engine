@@ -33,6 +33,12 @@ Application Configs:
         "type": "[A Page Type]"
       },
       "pageClassIdentifier": "pseudo-page is default"
+    },
+    "parameterParser": {
+      "type": "[A Parameter Parser Type] default: JsonParameterParser"
+    },
+    "router": {
+      "type": "[A Router Type] default: AppRouter"
     }
   }
 
