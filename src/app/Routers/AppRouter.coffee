@@ -1,29 +1,49 @@
 #<< AppEngine/Helpers/Logger
 
+###
+AppRouter is the default application routing Class used to make the routing of Pages through the pageManager
+
+@example How to generate an custom error
+  var router = new AppRouter({
+    pageManager: PageManager,
+    parameterParser: ParameterParser
+  });
+###
+
 class AppRouter extends Backbone.Router
   logger = new AppEngine.Helpers.Logger(@)
   
   routes: {
     "*splat": "routeChange"
   }
-  constructor: (config) ->
-    config = config or {}
-    if !config.pageManager
+
+  ###
+  @param [Object] options app router properties
+  @option pageManager [PageManager] the page manager to use
+  @option parameterParser [ParameterParser] the object that will parse out the page and parameters. (Default: JsonParameterParser)
+  ###
+  constructor: (options = {}) ->
+    if !options.pageManager
       throw new Error "Unable to start Router without an PageManager being passed into the Constructor"
     
-    @pageManager = config.pageManager
+    @pageManager = options.pageManager
     
-    if config.parameterParser
-      @parameterParser = config.parameterParser
+    if options.parameterParser
+      @parameterParser = options.parameterParser
     else
       @parameterParser = new AppEngine.Routers.JsonParameterParser
 
-    super(config)
+    super(options)
 
+  ###
+  @private
+  ###
   initialize: (options) ->
     #http://backbonejs.org/#Router-route
 
-
+  ###
+  @private
+  ###
   routeChange: (params) ->
     navigationComplete = ->
       @previousParams = params
@@ -35,10 +55,10 @@ class AppRouter extends Backbone.Router
         @navigate(@previousParams, {trigger: false, replace: true});
 
     if params
-      pageParams = @parameterParser.parseParameters(params)
+      pagesAndParams = @parameterParser.parseParameters(params)
 
-      if pageParams.length > 0
-        @pageManager.navigateToPage(pageParams, navigationComplete.createDelegate(@), cancelNavigation.createDelegate(@))
+      if pagesAndParams.length > 0
+        @pageManager.navigateToPage(pagesAndParams, navigationComplete.createDelegate(@), cancelNavigation.createDelegate(@))
         return
     
     #no params, route to default page
