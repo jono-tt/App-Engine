@@ -1,8 +1,8 @@
 #<< AppEngine/Components/AppEngineComponent
 
 class Page extends AppEngine.Components.AppEngineComponent
-  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['pageManager'])
-  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['pageManager'])
+  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['id', 'pageManager'])
+  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager'])
 
   @getShortNameIdentification: -> "app-engine-page"
 
