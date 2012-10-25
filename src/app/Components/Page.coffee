@@ -1,16 +1,16 @@
 #<< AppEngine/Components/AppEngineComponent
 
 class Page extends AppEngine.Components.AppEngineComponent
-  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['id', 'pageManager'])
-  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager'])
+  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['pageManager'])
+  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['pageManager'])
 
   @getShortNameIdentification: -> "app-engine-page"
 
   get = (props) => @::__defineGetter__ name, getter for name, getter of props
   set = (props) => @::__defineSetter__ name, setter for name, setter of props
 
-  constructor: (config)->
-    super config
+  constructor: (options = {})->
+    super options
     @logger.debug "'#{@id}': object has been created"
 
     @transition = new AppEngine.Transitions.ShowHideTransitionHandler({ duration: 500 })

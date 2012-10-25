@@ -4,7 +4,7 @@ class PageManager extends AppEngine.Objects.StrictObject
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['appConfig'])
   @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['appConfig', 'components', 'pageDefaultConfig', 'pageClassIdentifier', 'parentManager'])
 
-  constructor: (config) ->
+  constructor: (options = {}) ->
     try
       #set the default properies
       _.defaults(config, { 
@@ -19,7 +19,7 @@ class PageManager extends AppEngine.Objects.StrictObject
         errorPage: null
       }
 
-      super config
+      super options
     catch e
       throw new AppEngine.Helpers.Error "Creating new instance", e
 

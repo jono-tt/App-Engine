@@ -5,8 +5,8 @@ class PageComponent extends AppEngine.Components.AppEngineComponent
   @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['page'])
   @isAbstract: -> @ == PageComponent
 
-  constructor: (config)->
-    super config
+  constructor: (options = {})->
+    super options
 
   initialise: (cb) ->
     super(cb)

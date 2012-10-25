@@ -6,8 +6,8 @@ class AppEngineComponent extends AppEngine.Objects.JQueryObject
   @isAbstract: -> @ == AppEngineComponent
   @isAppEngineComponent = true
 
-  constructor: (config) ->
-    super(config)
+  constructor: (options = {}) ->
+    super(options)
 
   initialise: (cb) ->
     if @wrappedElement.children and @wrappedElement.children.length > 0

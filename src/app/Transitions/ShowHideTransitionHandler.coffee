@@ -4,7 +4,7 @@ class ShowHideTransitionHandler extends AppEngine.Objects.StrictObject
   @expectedParameters = AppEngine.Helpers.mergeArrays(_super.expectedParameters, [])
   @applyParameters = AppEngine.Helpers.mergeArrays(_super.applyParameters, ['duration'])
 
-  constructor: (options) ->
+  constructor: (options = {}) ->
     super(options)
     @duration = 500 if !@duration
 

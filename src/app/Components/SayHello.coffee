@@ -6,8 +6,8 @@ class SayHello extends AppEngine.Components.PageComponent
 
   @getShortNameIdentification: -> "say-hello"
 
-  constructor: (config)->
-    super config
+  constructor: (options = {})->
+    super options
     @logger.debug "SayHello: object has been created"
 
   initialise: (cb) ->

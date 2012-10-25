@@ -6,7 +6,7 @@ class JQueryObject extends AppEngine.Objects.StrictObject
 
   @isAbstract: -> @ == JQueryObject
 
-  constructor: (options) ->
+  constructor: (options = {}) ->
     try
       super options
     catch e

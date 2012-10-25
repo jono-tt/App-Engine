@@ -7,7 +7,7 @@ class StrictObject extends AppEngine.Objects.Object
   @applyParameters: []
   @isAbstract: -> @ == StrictObject
 
-  constructor: (options) ->
+  constructor: (options = {}) ->
     super(options)
     
     #check that this is not an abstract class
