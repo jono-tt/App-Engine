@@ -91,7 +91,7 @@ helpers.getConfigFromElement = (el) ->
   return config
 
 
-helpers.getTypeFromConfig = (config, defaultType) ->
+helpers.getTypeFromConfig = (config = {}, defaultType) ->
   type
   if config['type']
     type = helpers.getTypeFromTypeName(config['type'])
@@ -129,17 +129,19 @@ helpers.createObjectFromType = (config, type, cb) ->
      throw new AppEngine.Helpers.Error "createObjectFromType: Error creating new type '#{type.getName()}'", e
 
   complete = ->
-    cb(obj)
+    cb(obj) if cb
 
   if _.isFunction(obj.initialise)
     #this has an initialise function which must take a callback
     try
       obj.initialise complete
+      return obj
     catch e
        throw new AppEngine.Helpers.Error "createObjectFromType: Error calling Initialise on type '#{type.getName()}'", e
   else
     #this doesnt contain an init function so doesnt require a callback
     complete()
+    return obj
 
 
 helpers.getObjectByConfig = (config, defaultConfig, defaultType, cb) ->

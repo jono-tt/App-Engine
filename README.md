@@ -30,7 +30,10 @@ Application Configs:
     "pageManager": {
       "type": "ClassName [Default AppEngine.Managers.PageManager]",
       "pageDefaultConfig": {
-        "type": "[A Page Type]"
+        "type": "[A Page Type]",
+        "transitionHandlerOptions": {
+          "type": "[A Transition Handler] default: ShowHideTransitionHandler"
+        }
       },
       "pageClassIdentifier": "pseudo-page is default"
     },

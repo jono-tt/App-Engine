@@ -2,7 +2,7 @@
 
 class Page extends AppEngine.Components.AppEngineComponent
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['id', 'pageManager'])
-  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager'])
+  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager', 'transitionHandlerOptions'])
 
   @getShortNameIdentification: -> "app-engine-page"
 
@@ -12,8 +12,6 @@ class Page extends AppEngine.Components.AppEngineComponent
   constructor: (options = {})->
     super options
     @logger.debug "'#{@id}': object has been created"
-
-    @transition = new AppEngine.Transitions.ShowHideTransitionHandler({ duration: 500 })
 
   initialise: (cb) ->
     pageInitialised = ->
@@ -38,12 +36,20 @@ class Page extends AppEngine.Components.AppEngineComponent
     ACCESSOR PROPERTIES
   ###
 
-  # @property [String] The person name
+  # @property [String] The current parameters of this page
   get currentPageParams: (@_currentPageParams) ->
 
   ###
     END ACCESSOR PROPERTIES
   ###
+
+  applyConfigAttrib: (name, attribValue) ->
+    if name is "transitionHandlerOptions"
+      type = AppEngine.Helpers.getTypeFromConfig(attribValue, AppEngine.Transitions.ShowHideTransitionHandler)
+      @logger.debug "'#{@id}': TransitionHandler: of type '#{type.getName()}' being used"
+      @transitionHandler = AppEngine.Helpers.createObjectFromType(attribValue, type)
+    else
+      super name, attribValue
 
   addChild: (component, cb) ->
     #check if this is a page component
@@ -100,7 +106,7 @@ class Page extends AppEngine.Components.AppEngineComponent
       else 
         @logger.debug "'#{@id}': pageShow: Transitioning to page. No old page present, perhaps first load.'"
 
-      @transition.doTransition(oldPage, @, complete.createDelegate(@))
+      @transitionHandler.doTransition(oldPage, @, complete.createDelegate(@))
     else
       @logger.debug "pageShow: '#{@id}': This is the same page, dont transition"
       complete.call(@)
