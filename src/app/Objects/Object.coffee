@@ -1,5 +1,16 @@
 class Object
-  _.extend(@prototype, Backbone.Events)
+  #create mixin capabilities for all sub objects
+  @implements = ()->
+    mixins = _.toArray(arguments)
+    _.each(mixins, (mixin) ->
+      if _.isFunction(mixin)
+        if(mixin.prototype)
+          _.extend(@prototype, mixin.prototype)
+      else
+        _.extend(@prototype, mixin)
+    , @)
+
+  @implements(Backbone.Events)
 
   constructor: (options = {}) ->
     #Setup static logger for each class extending this

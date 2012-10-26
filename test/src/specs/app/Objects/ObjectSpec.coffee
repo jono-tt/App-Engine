@@ -58,3 +58,15 @@ describe "Object specs", ->
       expect(complete).not.toHaveBeenCalled()
       expect(cancel).toHaveBeenCalled()
 
+  describe "Mixins", ->
+    it "should allow mixins for all sub classes", ->
+      class A
+        message: "test"
+
+      B = "foo": "bar", "someSharedFunction": -> return @message
+
+      class C extends AppEngine.Objects.Object
+        @implements A, B
+
+      expect(new C().message).toEqual("test")
+      expect(new C().someSharedFunction()).toEqual("test")
