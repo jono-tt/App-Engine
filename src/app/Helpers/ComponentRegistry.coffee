@@ -21,7 +21,7 @@ AppEngine.registryGetTypeFromTypeShortName = (name) ->
 
 AppEngine.initialiseComponentRegistry = (scopes) ->
   #taverse all components and add to registry
-  logger = new AppEngine.Helpers.Logger(@)
+  logger = new AppEngine.Helpers.Logger("ComponentRegistry")
 
   scopes = [scopes] if !_.isArray(scopes)
 
