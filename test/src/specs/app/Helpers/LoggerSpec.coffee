@@ -75,7 +75,7 @@ describe "Logger Spec", ->
       Logger.setupLogger config
       expect(Logger.isError).not.toBeTruthy()
 
-    it "should initialise warn config by class", ->
+    it "should initialise error config by class", ->
       config = { error: ["Dummy"] }
       Logger.setupLogger config
       expect(Logger.isError).not.toBeTruthy()
@@ -83,7 +83,7 @@ describe "Logger Spec", ->
       log = new Logger(Dummy.prototype)
       #console.error.reset()
       try 
-        expect(log.error("test")).not.toBeTruthy()
+        expect(log.error("test")).toBeTruthy()
         expect(console.error).toHaveBeenCalledWith("Dummy: test")
       catch e
         #there is a strange error with console.error on Rhino where you cannot assign to this variable 

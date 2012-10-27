@@ -9,11 +9,16 @@ class Logger
     else if typeof klass == "String"
       logStartValue = klass
 
+    console.log klass
+
     #set logger
     if Logger.isLog or Logger.logClasses[klassName]
       @log = ->
         args = getLogMessage logStartValue, _.toArray(arguments)
-        console.log.apply(klass, args)
+        for a in args
+          console.log a
+
+        return true
     else
       @log = -> false
 
@@ -21,7 +26,10 @@ class Logger
     if Logger.isDebug or Logger.debugClasses[klassName]
       @debug = ->
         args = getLogMessage logStartValue, _.toArray(arguments)
-        console.debug.apply(klass, args)
+        for a in args
+          console.debug a
+
+        return true
     else
       @debug = -> false
 
@@ -29,7 +37,10 @@ class Logger
     if Logger.isWarn or Logger.warnClasses[klassName]
       @warn = ->
         args = getLogMessage logStartValue, _.toArray(arguments)
-        console.warn.apply(klass, args)
+        for a in args
+          console.warn a if a
+
+        return true
     else
       @warn = -> false
 
@@ -37,13 +48,18 @@ class Logger
     if Logger.isError or Logger.errorClasses[klassName]
       @error = ->
         args = getLogMessage logStartValue, _.toArray(arguments)
-        console.error.apply(klass, args)
+        for a in args
+          console.error a
+
+        return true
 
       @logError = (message, e) ->
         if _.isFunction(e.log)
           e.log() 
         else
           @error e
+
+        return true
     else
       @error = -> false
       @logError = (e) -> false
@@ -81,6 +97,7 @@ class Logger
     Logger.errorClasses = {}
 
   @setupLogger: (loggerConfig) ->
+    Logger.registry = {}
     loggerConfig = loggerConfig or {}
 
     Logger.isDebug = loggerConfig.debug == "true"
