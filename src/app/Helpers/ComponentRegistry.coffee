@@ -3,7 +3,7 @@
 #create a registry for the application and the components that can be registered by a class name
 AppEngine = __t('AppEngine')
 AppEngine.componentRegistry = {}
-logger = new AppEngine.Helpers.Logger(@)
+logger = null
 
 AppEngine.registerComponent = (className, component) ->
   if AppEngine.componentRegistry[className]
@@ -21,6 +21,7 @@ AppEngine.registryGetTypeFromTypeShortName = (name) ->
 
 AppEngine.initialiseComponentRegistry = (scopes) ->
   #taverse all components and add to registry
+  logger = new AppEngine.Helpers.Logger(@)
 
   scopes = [scopes] if !_.isArray(scopes)
 

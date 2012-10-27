@@ -1,4 +1,4 @@
-#<< AppEngine/Helpers/Logger
+#<< AppEngine/Objects/Object
 
 ###
 Extended Error class that contains nested error messages
@@ -7,12 +7,8 @@ that can be logged out as a stack
 @example How to generate an custom error
   throw new AppEngine.Helpers.Error("Some custome error message", new Error("Original error"))
 ###
-class Error
-  ###
-  @private
-  ###
-  logger = new AppEngine.Helpers.Logger(@)
 
+class Error extends AppEngine.Objects.Object
   ###
   Construct a new Error.
   
@@ -20,6 +16,7 @@ class Error
   @param innerError {Error} the original message that was caught
   @param errorObject {Object} optional as the object that caused the error
   ###
+  logger = null;
   constructor: (message, innerError, errorObject) ->
     #apply all to this apply
     _.defaults(@, innerError)
@@ -27,6 +24,9 @@ class Error
     @message = message
     @innerError = innerError
     @errorObject = errorObject
+
+    super()
+    logger = @logger
 
   ###
   Get the root causing Error object
@@ -56,9 +56,8 @@ class Error
   ###
   log: ->
     _log.call(this)
-
-    if logger.isDebug
-      logger.group "Stack"
-      logger.debug @getRootError().stack
-      logger.groupEnd()
-      logger.groupEnd()
+    
+    logger.group "Stack"
+    logger.debug @getRootError().stack
+    logger.groupEnd()
+    logger.groupEnd()

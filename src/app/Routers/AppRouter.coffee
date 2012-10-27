@@ -10,9 +10,7 @@ AppRouter is the default application routing Class used to make the routing of P
   });
 ###
 
-class AppRouter extends Backbone.Router
-  logger = new AppEngine.Helpers.Logger(@)
-  
+class AppRouter extends Backbone.Router  
   routes: {
     "*splat": "routeChange"
   }
@@ -26,6 +24,7 @@ class AppRouter extends Backbone.Router
     AppEngine.Helpers.assertParametersExist ["pageManager", "parameterParser"], options
     @pageManager = options.pageManager
     @parameterParser = options.parameterParser
+    @logger = new AppEngine.Helpers.Logger(@)
     
     super(options)
 
@@ -41,10 +40,10 @@ class AppRouter extends Backbone.Router
   routeChange: (params) ->
     navigationComplete = ->
       @previousParams = params
-      logger.debug "AppRouter: All page transitions complete", params
+      @logger.debug "AppRouter: All page transitions complete", params
 
     cancelNavigation = ->
-      logger.debug "Navigation has cancelled the request"
+      @logger.debug "Navigation has cancelled the request"
       if @previousParams
         @navigate(@previousParams, {trigger: false, replace: true});
 

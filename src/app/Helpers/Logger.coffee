@@ -67,6 +67,13 @@ class Logger
   @logClasses = {}
   @errorClasses = {}
 
+  @getLoggerInstance: (klazz) ->
+    Logger.registry = {} if ! Logger.registry
+
+    return Logger.registry[klazz] if !Logger.registry[klazz]
+    return Logger.registry[klazz] = new Logger(klazz)
+
+
   @resetLogger: () ->
     Logger.debugClasses = {}
     Logger.warnClasses = {}
