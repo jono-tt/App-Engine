@@ -31,7 +31,7 @@ AppEngine.initialiseComponentRegistry = (scopes) ->
       checkedList.push(component)
 
       #check all functions
-      if component.isAppEngineComponent && component.prototype
+      if component.prototype instanceof AppEngine.Components.AppEngineComponent
         if !component.prototype.constructor.isAbstract()
           #this is the function for getting the Component Identification
           #eg. Objects['Page']['getShortNameIdentification']()

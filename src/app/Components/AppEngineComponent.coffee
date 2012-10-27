@@ -4,7 +4,6 @@ class AppEngineComponent extends AppEngine.Objects.JQueryObject
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['wrappedElement'])
   @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['wrappedElement'])
   @isAbstract: -> @ == AppEngineComponent
-  @isAppEngineComponent = true
 
   constructor: (options = {}) ->
     super(options)
