@@ -155,6 +155,8 @@ class Page extends AppEngine.Components.AppEngineComponent
     @_currentPageParams = pageParams
 
     complete = ->
+      oldPage.afterPageHide(@) if oldPage
+
       @logger.debug "'#{@id}': Triggering 'pageShown' event"
       @trigger "pageShown", oldPage, pageParams
       cb()
@@ -232,14 +234,8 @@ class Page extends AppEngine.Components.AppEngineComponent
       success()
 
 
-
-  
-
-  # pageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-  #   @logger.debug("'#{@id}': pageHide")
-  #   cb()
-
-  # afterPageHide: (newPage, pageParams, childPagesWithParams, cb) ->
-  #   @logger.debug("'#{@id}': afterPageHide")
-  #   cb()
+  afterPageHide: (newPage) ->
+    if newPage != @
+      @logger.debug("'#{@id}': Triggering 'afterPageHidden' event")
+      @trigger "afterPageHidden", newPage
 

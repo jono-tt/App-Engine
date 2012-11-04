@@ -100,6 +100,9 @@ Page:
       oldPage - the page that is being replaced
       pageParams - the params this page will have after the transition has completed
 
+    afterPageHidden:
+      newPage - the page that has replaced this page
+
     pageShown:
       oldPage - the page that was replaced
       pageParams - the params this page now has
