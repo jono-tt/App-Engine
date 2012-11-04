@@ -18,11 +18,12 @@ class SayHello extends AppEngine.Components.PageComponent
     @page.on("beforePageHide", @beforePageHide.createDelegate(@))
     @page.on("afterPageShown", @afterPageShown.createDelegate(@))
     @page.on("beforePageShown", @beforePageShown.createDelegate(@))
+    @page.on("pageNavigationCancelled", @pageNavigationCancelled.createDelegate(@))
 
     super(cb)
 
   afterPageShown: (oldPage, params) ->
-    @logger.log "afterPageShown", oldPage, params
+    @logger.warn "afterPageShown", oldPage, params
 
     m = ->
       @el.html("test: " + (Math.ceil(Math.random() * 1000)))
@@ -30,18 +31,17 @@ class SayHello extends AppEngine.Components.PageComponent
     setTimeout(m.createDelegate(@), 2000)
 
   beforePageShown: (continueCb, cancelCb, oldPage, params) ->
-    @logger.log "beforePageShown", oldPage, params
-    # if cancelCb
-    #   cancelCb() 
-    # else
+    @logger.warn "beforePageShown", oldPage, params
     continueCb()
 
   beforePageHide: (continueCb, cancelCb, newPage, params) ->
     if params and params.k
       continueCb();
     else
-      cancelCb();
+      cancelCb("because i wanted to");
 
+  pageNavigationCancelled: (page) ->
+    @logger.warn("I stopped navigation: #{page.id}")
 
 
 class GTest extends AppEngine.Components.GlobalComponent

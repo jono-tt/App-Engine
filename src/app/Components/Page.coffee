@@ -98,20 +98,26 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   #SECTION USED FOR SHOWING AND HIDING PAGES
   beforePageShow: (oldPage, pageParams, childPagesWithParams, success, cancelNavigation) ->
+    _cancelNavigation = ((message)->
+      @logger.debug "'#{@id}': beforePageShow: Navigation has been cancelled"
+      @trigger("pageNavigationCancelled", @)
+      cancelNavigation(message)
+    ).createDelegate(@) if cancelNavigation
+
     if(oldPage == @)
       @logger.debug "'#{@id}': beforePageShow: The same page, different parameters"
-      @beforeChildPageShow oldPage, childPagesWithParams, success, cancelNavigation
+      @beforeChildPageShow oldPage, childPagesWithParams, success, _cancelNavigation
     else
       @logger.debug "'#{@id}': beforePageShow: page has changed, check components are ok to continue"
 
       successCb = (() ->
-        @beforeChildPageShow(oldPage, childPagesWithParams, success, cancelNavigation)
+        @beforeChildPageShow(oldPage, childPagesWithParams, success, _cancelNavigation)
       ).createDelegate(@)
 
       cancelCb = ((message) ->
         @logger.debug "'#{@id}': Components requested stopping of page show"
-        cancelNavigation()
-      ).createDelegate(@) if cancelNavigation
+        _cancelNavigation(message)
+      ).createDelegate(@) if _cancelNavigation
 
       @logger.debug "'#{@id}': beforePageShow is continuing to show "
       @triggerWithCallback("beforePageShown", successCb, cancelCb, oldPage, pageParams)
@@ -180,18 +186,24 @@ class Page extends AppEngine.Components.AppEngineComponent
       complete.call(@)
 
   beforePageHide: (newPage, pageParams, childPagesWithParams, success, cancelNavigation) ->
+    _cancelNavigation = ((message)->
+      @logger.debug "'#{@id}': beforePageHide: Navigation has been cancelled"
+      @trigger("pageNavigationCancelled", @)
+      cancelNavigation(message)
+    ).createDelegate(@)
+
     if(newPage == @)
       @logger.debug "#{@id}': beforePageHide: The same page, different parameters"
-      @beforeChildPageHide childPagesWithParams, success, cancelNavigation
+      @beforeChildPageHide childPagesWithParams, success, _cancelNavigation
     else
       @logger.debug "'#{@id}': beforePageHide: page has changed, check components are ok to continue"
 
       successCb = () ->
-        @beforeChildPageHide(childPagesWithParams, success, cancelNavigation)
+        @beforeChildPageHide(childPagesWithParams, success, _cancelNavigation)
 
       cancelCb = (message) ->
         @logger.debug "'#{@id}': Components requested stopping of page hide"
-        cancelNavigation()
+        _cancelNavigation()
 
       @logger.debug "'#{@id}': beforePageHide is continuing to hide "
       @triggerWithCallback("beforePageHide", success.createDelegate(@), cancelCb.createDelegate(@), newPage, pageParams)

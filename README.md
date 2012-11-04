@@ -91,6 +91,9 @@ Page:
       newPage - the page that we are transitioning to
       pageParams - parameters passed into new page
 
+    pageNavigationCancelled
+      page - page that triggered the event
+
     beforePageShown:
       continueCb - Called to continue showing the page
       cancelCb - Called to cancel the page display (optional: If this is the first page then this option will be null)
