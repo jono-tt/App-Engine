@@ -9,6 +9,8 @@ class Page extends AppEngine.Components.AppEngineComponent
   get = (props) => @::__defineGetter__ name, getter for name, getter of props
   set = (props) => @::__defineSetter__ name, setter for name, setter of props
 
+  globalComponents: {}
+
   constructor: (options = {})->
     super options
     @logger.debug "'#{@id}': object has been created"
@@ -62,8 +64,22 @@ class Page extends AppEngine.Components.AppEngineComponent
       if pageComponents.length > 0
         @addChildPageComponents pageComponents
 
+      componentCreated = (comp) ->
+        if(comp.scope)
+          switch comp.scope
+            when "page"
+              if _.isUndefined @globalComponents[comp.id]
+                @logger.debug "'#{@id}': Global component '#{comp.id}' is being registered to Page with scope of 'page'"
+                @globalComponents[comp.id] = comp
+              else
+                @logger.error "'#{@id}': Global component '#{comp.id}' has already been registered to this Page. Ignoring register request for component:", comp.el
+            else
+              @pageManager.addGlobalComponent comp
+
+        cb(comp)
+
       #create this as a normal component (ie. not a page)
-      @createChildComponent component, cb
+      @createChildComponent component, componentCreated.createDelegate(@)
 
   createChildComponent: (component, cb) ->
     try

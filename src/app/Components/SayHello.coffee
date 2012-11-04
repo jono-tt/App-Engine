@@ -1,4 +1,5 @@
 #<< AppEngine/Components/PageComponent
+#<< AppEngine/Components/GlobalComponent
 
 class SayHello extends AppEngine.Components.PageComponent
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, [])
@@ -35,3 +36,8 @@ class SayHello extends AppEngine.Components.PageComponent
       success();
     else
       fail();
+
+
+
+class GTest extends AppEngine.Components.GlobalComponent
+  

@@ -4,6 +4,8 @@ class PageManager extends AppEngine.Objects.StrictObject
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['appConfig'])
   @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['appConfig', 'components', 'pageDefaultConfig', 'pageClassIdentifier', 'parentManager'])
 
+  globalComponents: {}
+
   constructor: (options = {}) ->
     try
       #set the default properies
@@ -27,49 +29,102 @@ class PageManager extends AppEngine.Objects.StrictObject
     @pageDefaultConfig.type = AppEngine.Components.Page.getShortNameIdentification() if !@pageDefaultConfig.type
 
   initialise: (cb)->
-    try 
-      pagesInitialiseComplete = (pages)->
-        @pages = {}
-        for page in pages
-          @pages[page.id] = page
-
-          @setSpecialPages(page)
-
-        #check if a default page was not set
-        if !@specialPages.defaultPage
-          if pages.length > 0
-            @specialPages.defaultPage = pages[0]
-            @logger.debug "Default page was not found so reverting to using '#{@specialPages.defaultPage.id}' as default"
-          else
-            @logger.warn "Default page not set as there are no pages"
-
-        cb()
-
-      pageDefConfig = { pageManager: @ }
-      _.defaults pageDefConfig, @pageDefaultConfig
-
-      addPage = (item, callback) ->
-        AppEngine.Helpers.createObjectByElementWrap item, pageDefConfig, callback
-
+    try
       #go through each component on the page and make sure it has an appropriate
       pageWrappers = []
+      globalComponents = []
       for comp in @components
         if @isPageComponent comp
           pageWrappers.push comp
+        else if @isGlobalComponent comp
+          globalComponents.push comp
         else
-          @logger.log "Component is outside of a page so cannot be created: "
+          @logger.log "Standard Component is outside of a page so cannot be created: "
           @logger.log comp.el
 
-      if pageWrappers.length > 0
-        #go through each page wrapper and create a page
-        AppEngine.Helpers.asyncCallEach pageWrappers, addPage.createDelegate(@), pagesInitialiseComplete.createDelegate(@)
-      else
-        @logger.warn "Unable to find any Pages in the web component root"
-        cb()
+      afterPagesCreated = ->
+        @createGlobalComponents globalComponents, cb
+
+      @createAllPages pageWrappers, afterPagesCreated.createDelegate(@)
     catch e
       throw new AppEngine.Helpers.Error "initialising", e
 
+  ###
+  @private
+  ###
+  createAllPages: (pageWrappers = [], cb) ->
+    pageDefConfig = { pageManager: @ }
+    _.defaults pageDefConfig, @pageDefaultConfig
 
+    addPage = (item, callback) ->
+      AppEngine.Helpers.createObjectByElementWrap item, pageDefConfig, callback
+
+    pagesInitialiseComplete = (pages)->
+      @pages = {}
+      for page in pages
+        @pages[page.id] = page
+
+        @setSpecialPages(page)
+
+      #check if a default page was not set
+      if !@specialPages.defaultPage
+        if pages.length > 0
+          @specialPages.defaultPage = pages[0]
+          @logger.debug "Default page was not found so reverting to using '#{@specialPages.defaultPage.id}' as default"
+        else
+          @logger.warn "Default page not set as there are no pages"
+
+      cb()
+
+    if pageWrappers.length > 0
+      #go through each page wrapper and create a page
+      AppEngine.Helpers.asyncCallEach pageWrappers, addPage.createDelegate(@), pagesInitialiseComplete.createDelegate(@)
+    else
+      @logger.warn "Unable to find any Pages in the web component root"
+      cb()
+
+  ###
+  Add Global Component
+
+  @param [Object] component that will be added to the correct scope
+  ###
+  addGlobalComponent: (component) ->
+    if component.scope == "global" && !_.isUndefined(@parentManager)
+      @logger.debug "Global component '#{component.id}' is being registered in parent PageManager"
+      @parentManager.addGlobalComponent component
+    else if component.id && component.scope
+      if _.isUndefined @globalComponents[component.id]
+        @logger.debug "Global component '#{component.id}' is being registered to PageManager with scope of '#{component.scope}'"
+        @globalComponents[component.id] = component
+      else
+        @logger.error "Global component '#{component.id}' has already been registered to this Manager. Ignoring register request for component:", component.el
+    else
+      @logger.debug "Unable to find id/name or scope for the GlobalComponent: ", component.el
+
+  ###
+  @private
+  ###
+  createGlobalComponents: (globalComponents = [], cb) ->
+    defConfig = { pageManager: @ }
+
+    addComponent = (item, callback) ->
+      AppEngine.Helpers.createObjectByElementWrap item, defConfig, callback
+
+    componentsInitialiseComplete = (comps)->
+      for comp in comps
+        @addGlobalComponent comp
+
+      cb()
+
+    if globalComponents.length > 0
+      @logger.debug "Creating #{globalComponents.length} global components"
+      AppEngine.Helpers.asyncCallEach globalComponents, addComponent.createDelegate(@), componentsInitialiseComplete.createDelegate(@)
+    else
+      cb()
+
+  ###
+  @private
+  ###
   setSpecialPages: (page) ->
     if page.isDefaultPage
       if !@specialPages.defaultPage
@@ -106,6 +161,13 @@ class PageManager extends AppEngine.Objects.StrictObject
 
   isPageComponent: (component) ->
     return component.el.hasClass(@pageClassIdentifier)
+
+  isGlobalComponent: (component) ->
+    switch component.el.data("scope")
+      when "page", "pageManager", "global"
+        return true
+      else
+        return false
 
   getChildPageManager: () ->
     return new PageManager({

@@ -76,6 +76,14 @@ Page:
 
 
 
+Global Components: (any component that has an attribute as follows)
+  name: unique name (*required)
+  data-scope: (*required)
+    "global" - This the root Page Manager for the entire Application. This means you can have components living outside of pages
+    "pageManager" - This is the PageManager that this component lives in (ie. If this is a child page's component the child PageManager registry will be used)
+    "page" - The component will be available to all sub-components but only on the current page
+  
+
 
 
 
