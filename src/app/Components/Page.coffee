@@ -97,16 +97,53 @@ class Page extends AppEngine.Components.AppEngineComponent
 
 
   #SECTION USED FOR SHOWING AND HIDING PAGES
-  beforePageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
+  beforePageShow: (oldPage, pageParams, childPagesWithParams, success, cancelNavigation) ->
     if(oldPage == @)
-      @logger.debug("'#{@id}': beforePageShow: The same page, different parameters")
-    else 
-      @logger.debug("'#{@id}': beforePageShow")
+      @logger.debug "'#{@id}': beforePageShow: The same page, different parameters"
+      @beforeChildPageShow oldPage, childPagesWithParams, success, cancelNavigation
+    else
+      @logger.debug "'#{@id}': beforePageShow: page has changed, check components are ok to continue"
 
-    @logger.debug "'#{@id}': Triggering 'beforePageShown' event"
-    @trigger "beforePageShown", oldPage, pageParams
+      successCb = (() ->
+        @beforeChildPageShow(oldPage, childPagesWithParams, success, cancelNavigation)
+      ).createDelegate(@)
 
-    cb()
+      cancelCb = ((message) ->
+        @logger.debug "'#{@id}': Components requested stopping of page show"
+        cancelNavigation()
+      ).createDelegate(@) if cancelNavigation
+
+      @logger.debug "'#{@id}': beforePageShow is continuing to show "
+      @triggerWithCallback("beforePageShown", successCb, cancelCb, oldPage, pageParams)
+
+  ###
+  @private
+  ###
+  beforeChildPageShow: (oldPage, childPagesWithParams, success, cancelNavigation) ->
+
+    if @childPageManager
+      continueCb = (->
+        @logger.debug "'#{@id}': beforePageShow child page is continuing to show"
+        success()
+      ).createDelegate(@)
+
+      cancelByChildPageCb = ((message) ->
+        @logger.debug "'#{@id}': Child page requested stopping of page show"
+        cancelNavigation()
+      ).createDelegate(@) if cancelNavigation
+
+      #slice the params to pass through to the child page manager to do the chaining correctly
+      childPages = childPagesWithParams.slice(1)
+      newpageWithParams = @childPageManager.getPageAndParamsFromList(childPagesWithParams)
+
+      if newpageWithParams
+        newpageWithParams.page.beforePageShow oldPage, newpageWithParams.params, childPages, continueCb, cancelByChildPageCb
+      else
+        continueCb()
+    else
+      @logger.debug "'#{@id}': beforePageShow no child pages, continuing to show"
+      success()
+
 
   pageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
     @_currentPageParams = pageParams

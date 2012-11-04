@@ -28,16 +28,19 @@ class SayHello extends AppEngine.Components.PageComponent
   afterPageShown: (oldPage, params) ->
     @logger.log "afterPageShown", oldPage, params
 
-  beforePageShown: (oldPage, params) ->
+  beforePageShown: (continueCb, cancelCb, oldPage, params) ->
     @logger.log "beforePageShown", oldPage, params
-
-  beforePageHide: (success, fail, newPage, params) ->
-    if params and params.k
-      success();
+    if cancelCb
+      cancelCb() 
     else
-      fail();
+      continueCb()
+
+  beforePageHide: (continueCb, cancelCb, newPage, params) ->
+    if params and params.k
+      continueCb();
+    else
+      cancelCb();
 
 
 
 class GTest extends AppEngine.Components.GlobalComponent
-  

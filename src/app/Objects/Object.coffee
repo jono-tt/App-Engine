@@ -47,11 +47,15 @@ class Object
           else
             complete()
 
-      cancelCb = ->
-        doCancel = true
-        calcCb()
+      if cancel
+        cancelCb = ->
+          doCancel = true
+          calcCb()
 
-      rest.unshift cancelCb
+        rest.unshift cancelCb
+      else
+        rest.unshift null
+        
       rest.unshift calcCb
 
       for node in notificationList

@@ -229,14 +229,22 @@ class PageManager extends AppEngine.Objects.StrictObject
       newpage.pageShow @currentPage, pageParams, childPagesAndParams, pageShown.createDelegate(@)
 
     beforePageShown = ->
-      newpage.beforePageShow @currentPage, pageParams, childPagesAndParams, pageShow.createDelegate(@), cancelNavigation
+      if cancelNavigation
+        if @currentPage
+          #this can be rolled back as there is a previous page
+          newpage.beforePageShow @currentPage, pageParams, childPagesAndParams, pageShow.createDelegate(@), cancelNavigation
+        else
+          #there is no current page so this navigation cannot be cancelled
+          newpage.beforePageShow @currentPage, pageParams, childPagesAndParams, pageShow.createDelegate(@), null
+      else
+        pageShow.call(@)
 
     #if there is an old page, let the old page decide if it wants to opt out before navigaigation
     if @currentPage and cancelNavigation
       #if this returns immediately with false the navigation will be stopped
       @beforeCurrentPageHide newpage, pageParams, childPagesAndParams, beforePageShown.createDelegate(@), cancelNavigation
     else
-      beforePageShown.call(this)
+      beforePageShown.call(@)
 
     return true
 
@@ -248,7 +256,6 @@ class PageManager extends AppEngine.Objects.StrictObject
       @currentPage.beforePageHide newpage, pageParams, childPagesAndParams, navigationComplete, cancelNavigation
     else
       navigationComplete(this)
-
 
 
 

@@ -57,12 +57,14 @@ Page:
 
   Events:
     beforePageHide
-      continueCallback - to be called if must continue
-      cancelCallback - to be called if callback must be cancelled, to notify up the stack that page change must be reverted
+      continueCb - to be called if must continue
+      cancelCb - to be called if callback must be cancelled, to notify up the stack that page change must be reverted
       newPage - the page that we are transitioning to
       pageParams - parameters passed into new page
 
     beforePageShown:
+      continueCb - Called to continue showing the page
+      cancelCb - Called to cancel the page display (optional: If this is the first page then this option will be null)
       oldPage - the page that is being replaced
       pageParams - the params this page will have after the transition has completed
 
