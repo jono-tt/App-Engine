@@ -1,8 +1,8 @@
 #<< AppEngine/Components/AppEngineComponent
 
 class Page extends AppEngine.Components.AppEngineComponent
-  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['id', 'pageManager'])
-  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager', 'transitionHandlerOptions'])
+  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['id', 'pageManager', 'transitionHandler'])
+  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager', 'transitionHandler'])
 
   @getShortNameIdentification: -> "app-engine-page"
 
@@ -45,13 +45,13 @@ class Page extends AppEngine.Components.AppEngineComponent
     END ACCESSOR PROPERTIES
   ###
 
-  applyConfigAttrib: (name, attribValue) ->
-    if name is "transitionHandlerOptions"
-      type = AppEngine.Helpers.getTypeFromConfig(attribValue, AppEngine.Transitions.ShowHideTransitionHandler)
-      @logger.debug "'#{@id}': TransitionHandler: of type '#{type.getName()}' being used"
-      @transitionHandler = AppEngine.Helpers.createObjectFromType(attribValue, type)
-    else
-      super name, attribValue
+  # applyConfigAttrib: (name, attribValue) ->
+  #   if name is "transitionHandlerOptions"
+  #     type = AppEngine.Helpers.getTypeFromConfig(attribValue, AppEngine.Transitions.ShowHideTransitionHandler)
+  #     @logger.debug "'#{@id}': TransitionHandler: of type '#{type.getName()}' being used"
+  #     @transitionHandler = AppEngine.Helpers.createObjectFromType(attribValue, type)
+  #   else
+  #     super name, attribValue
 
   addChild: (component, cb) ->
     #check if this is a page component

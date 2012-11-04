@@ -71,21 +71,34 @@ describe "Helpers Spec", ->
 
   describe "Configuration", ->
     it "should get a config from an element", ->
-      el = new MockJQueryObject({
-        attributes: {
-          name: "test"
-        },
-        data: {
-          foo: "2",
-          bar: "3"
-        }
-      })
+      el = $j("<div name='test' data-foo='2' data-bar='3'></div>")
 
       conf = help.getConfigFromElement(el)
       expect(conf.id).toEqual("test")
       expect(conf.el).toEqual(el)
-      expect(conf.foo).toEqual("2")
-      expect(conf.bar).toEqual("3")
+      expect(conf.foo).toEqual(2)
+      expect(conf.bar).toEqual(3)
+
+    it "should get a complex config from the first inner script element", ->
+      el = $j("<div name='testName'><script name='config' type='text/template'>{ \"foo\": \"bar\" }</script></div>")
+
+      conf = help.getConfigFromElement(el)
+      expect(conf.foo).toEqual("bar")
+      expect(conf.id).toEqual("testName")
+
+    it "should get a complex config from the first sibling script element", ->
+      el = $j("<span name='testName'>text</span><script name='config' type='text/template'>{ \"foo\": \"bar\" }</script>")
+
+      conf = help.getConfigFromElement(el)
+      expect(conf.foo).toEqual("bar")
+      expect(conf.id).toEqual("testName")
+
+    it "should fail when a complex config is not a valid JSON format", ->
+      el = $j("<div name='testName'><script name='config' type='text/template'> { </script></div>")
+
+      expect(->
+        help.getConfigFromElement(el)
+      ).toThrow(new Error "Config: Unable to parse template config for 'testName'")
 
 
   describe "Types from Config", ->
@@ -145,6 +158,40 @@ describe "Helpers Spec", ->
       help.createObjectFromType null, Success, cb
 
       expect(cb).toHaveBeenCalled()
+
+    it "should create a sub-object With the correct inner instantiated object", ->
+      class OuterType
+        constructor: (options) ->
+          @inner = options.inner
+        initialise: (callback) ->
+          callback()
+
+      window.InnerClass = (
+        class InnerType
+          constructor: (options) ->
+            spyOn(@, "initialise").andCallThrough()
+            @page = options.page
+
+          initialise: (callback) ->
+            callback()
+      )
+
+      config = {
+        page: "test page",
+        inner: {
+          type: "InnerClass"
+        }
+      }
+
+      cb = jasmine.createSpy("AfterCreateComplete")
+
+      help.createObjectFromType config, OuterType, cb
+
+      expect(cb).toHaveBeenCalled()
+      obj = cb.calls[0].args[0]
+      expect(obj instanceof OuterType).toBeTruthy()
+      expect(obj.inner instanceof InnerClass).toBeTruthy()
+      expect(obj.inner.page).toEqual("test page")
 
 
   describe "Create Object from Config", ->

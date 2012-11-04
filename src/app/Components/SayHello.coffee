@@ -14,10 +14,6 @@ class SayHello extends AppEngine.Components.PageComponent
   initialise: (cb) ->
     @logger.debug "SayHello: has been initialised"
     @logger.debug @el.html()
-    m = ->
-      @el.html("test")
-
-    setTimeout(m.createDelegate(@), 2000)
 
     @page.on("beforePageHide", @beforePageHide.createDelegate(@))
     @page.on("afterPageShown", @afterPageShown.createDelegate(@))
@@ -28,12 +24,17 @@ class SayHello extends AppEngine.Components.PageComponent
   afterPageShown: (oldPage, params) ->
     @logger.log "afterPageShown", oldPage, params
 
+    m = ->
+      @el.html("test: " + (Math.ceil(Math.random() * 1000)))
+
+    setTimeout(m.createDelegate(@), 2000)
+
   beforePageShown: (continueCb, cancelCb, oldPage, params) ->
     @logger.log "beforePageShown", oldPage, params
-    if cancelCb
-      cancelCb() 
-    else
-      continueCb()
+    # if cancelCb
+    #   cancelCb() 
+    # else
+    continueCb()
 
   beforePageHide: (continueCb, cancelCb, newPage, params) ->
     if params and params.k

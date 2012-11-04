@@ -31,8 +31,9 @@ Application Configs:
       "type": "ClassName [Default AppEngine.Managers.PageManager]",
       "pageDefaultConfig": {
         "type": "[A Page Type]",
-        "transitionHandlerOptions": {
-          "type": "[A Transition Handler] default: ShowHideTransitionHandler"
+        "transitionHandler": {
+          "type": "[A Transition Handler] default: ShowHideTransitionHandler",
+          "duration": 1000
         }
       },
       "pageClassIdentifier": "pseudo-page is default"
@@ -44,6 +45,34 @@ Application Configs:
       "type": "[A Router Type] default: AppRouter"
     }
   }
+
+
+All Components:
+  Components can be configured by:
+    1)  Adding the class 'ae-comp'
+    2)  Setting the attribute 'data-type' to a full class name or to the shortname for the component
+    3)  Options for the class constructor can be set 2 ways:
+      i)  As data attributes on the element:
+        <div data-type='MyComponent' data-fade-in="true"></div>
+      ii) As script templates:
+        <span class="MyComponent" />
+        <script name='config' type='text/template'>{ fadeIn: true }</script>
+        OR
+        <span class="MyComponent">
+          <script name='config' type='text/template'>{ fadeIn: true }</script>
+        </span>
+        OR (with sub property types)
+        <span class="MyComponent">
+          <script name='config' type='text/template'>
+            { 
+              fadeIn: true,
+              handler: {
+                type: "FadeHandler",
+                time: 100
+              }
+            }
+          </script>
+        </span>
 
 
 Page:

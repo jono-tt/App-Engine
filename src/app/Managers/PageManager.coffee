@@ -9,11 +9,20 @@ class PageManager extends AppEngine.Objects.StrictObject
   constructor: (options = {}) ->
     try
       #set the default properies
-      _.defaults(options, { 
+      defaultOptions = { 
         pageClassIdentifier: 'pseudo-page',
-        pageDefaultConfig: {},
+        pageDefaultConfig: {
+          type: AppEngine.Components.Page.getShortNameIdentification(),
+          transitionHandler: {
+            type: "AppEngine.Transitions.ShowHideTransitionHandler",
+            duration: 500
+          }
+        },
         components: []
-      })
+      }
+
+      _.defaults(options, defaultOptions)
+      _.defaults(options.pageDefaultConfig, defaultOptions.pageDefaultConfig)
 
       @specialPages = {
         defaultPage: null,
@@ -25,8 +34,6 @@ class PageManager extends AppEngine.Objects.StrictObject
     catch e
       throw new AppEngine.Helpers.Error "Creating new instance", e
 
-    #set the default Page type
-    @pageDefaultConfig.type = AppEngine.Components.Page.getShortNameIdentification() if !@pageDefaultConfig.type
 
   initialise: (cb)->
     try

@@ -6,7 +6,7 @@ helpers.getTemplateMarkup = (templateId) ->
     templateObj = $j "#" + templateId
 
     if !_.isUndefined(templateObj)
-      return templateObj.html()
+      return templateObj.text()
 
   return null
 
@@ -68,7 +68,7 @@ helpers.asyncCallEach = (items, fn, completeCallback) ->
 
 
 helpers.createObjectByElementWrap = (elementWrap, defaultConfig, cb) ->
-  config = helpers.getConfigFromElement(elementWrap.el, defaultConfig)
+  config = helpers.getConfigFromElement(elementWrap.el)
   #set all the default values of this config
   _.defaults config, defaultConfig
 
@@ -84,6 +84,21 @@ helpers.getConfigFromElement = (el) ->
   config = {}
   _.each el.data(), (value, name) ->
     config[name] = value
+
+  applyScriptConfig = (config, scriptElement) ->
+    if scriptElement and scriptElement.length > 0 and scriptElement[0].nodeName == "SCRIPT" and scriptElement.attr("name") == "config"
+      conf = scriptElement.text()
+      try
+        _.defaults(config, ($j.parseJSON conf))
+        return true
+      catch e
+        throw new AppEngine.Helpers.Error "Config: Unable to parse template config for '#{el.attr('name')}'", e, conf
+    else
+      return false
+
+  #This creates config properties from script->text/template
+  if !applyScriptConfig(config, el.children().first())
+    applyScriptConfig(config, el.siblings().next())
 
   config["id"] = el.attr('name')
   config["el"] = el
@@ -121,27 +136,57 @@ helpers.getTypeFromTypeName = (typeName) ->
   return type
 
 helpers.createObjectFromType = (config, type, cb) ->
-  #create a new object of 'type'
-  obj
-  try
-    obj = new type config
-  catch e
-     throw new AppEngine.Helpers.Error "createObjectFromType: Error creating new type '#{type.getName()}'", e
-
-  complete = ->
-    cb(obj) if cb
-
-  if _.isFunction(obj.initialise)
-    #this has an initialise function which must take a callback
+  #go through each config property to see if there are nested components that need to be instantiated first
+  instantiateObject = (config) ->
+    #create a new object of 'type'
+    obj
     try
-      obj.initialise complete
-      return obj
+      obj = new type config
     catch e
-       throw new AppEngine.Helpers.Error "createObjectFromType: Error calling Initialise on type '#{type.getName()}'", e
+       throw new AppEngine.Helpers.Error "createObjectFromType: Error creating new type '#{type.getName()}'", e
+
+    complete = ->
+      cb(obj) if cb
+
+    if _.isFunction(obj.initialise)
+      #this has an initialise function which must take a callback
+      try
+        obj.initialise complete
+        return obj
+      catch e
+         throw new AppEngine.Helpers.Error "createObjectFromType: Error calling Initialise on type '#{type.getName()}'", e
+    else
+      #this doesnt contain an init function so doesnt require a callback
+      complete()
+      return obj
+
+  #get all sub-objects that need to be initialised from the config
+  itemsToPreInitialise = []
+  if(_.isObject(config))
+    _.each(config, (value, name) ->
+      if _.isObject(value) and value.type
+        value.__name = name
+        itemsToPreInitialise.push value
+    )
+
+  if itemsToPreInitialise.length > 0
+    #Object has other objects to initialise before 
+
+    onAllComplete = ->
+      instantiateObject(config)
+
+    eachSubComponent = (conf, cb) ->
+      #create each sub component
+      onEachComplete = (item) ->
+        config[conf.__name] = item
+        cb(item)
+
+      helpers.getObjectByConfig conf, { page: config.page }, null, onEachComplete
+
+    #create each of the sub components
+    helpers.asyncCallEach itemsToPreInitialise, eachSubComponent, onAllComplete
   else
-    #this doesnt contain an init function so doesnt require a callback
-    complete()
-    return obj
+    instantiateObject(config)
 
 
 helpers.getObjectByConfig = (config, defaultConfig, defaultType, cb) ->

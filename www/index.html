@@ -36,6 +36,14 @@
             <div name="gl2" class="ae-comp" data-scope="global" data-type="AppEngine.Components.GTest">foo</div>
           </div>
           <div name="test7" class="ae-comp pseudo-page hide" data-type="app-engine-page">
+            <script name="config" type="template/text">
+            {
+              "transitionHandler": {
+                "type": "AppEngine.Transitions.ShowHideTransitionHandler",
+                "duration": 2500
+              }
+            }
+            </script>
             <div>Page7</div>
           </div>
         </div>
