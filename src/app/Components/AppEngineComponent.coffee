@@ -32,3 +32,15 @@ class AppEngineComponent extends AppEngine.Objects.JQueryObject
         console.debug @el
         
       cb()
+
+  dispose: () ->
+    @trigger "dispose", @
+    @off()
+
+    if @children
+      @logger.debug "Dispose: Start disposing children"
+      for child in @children
+        child.dispose() if _.isFunction(child.dispose)
+
+      @logger.debug "Dispose: Complete disposing children"
+      delete @children

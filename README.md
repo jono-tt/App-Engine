@@ -112,6 +112,12 @@ Page:
       pageParams - the params this page now has
 
 
+AppEngineComponent:
+  Events:
+    dispose: (gets fired when the object is disposed of)
+      component - the component that is getting disposed of
+
+
 
 Global Components: (any component that has an attribute as follows)
   name: unique name (*required)
