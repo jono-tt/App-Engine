@@ -94,19 +94,28 @@ class PageManager extends AppEngine.Objects.StrictObject
   Add Global Component
 
   @param [Object] component that will be added to the correct scope
+  @param [String] scope which level component should be deleted
   ###
-  addGlobalComponent: (component) ->
-    if component.scope == "global" && !_.isUndefined(@parentManager)
+  addGlobalComponent: (component, scope = "pageManager") ->
+    if scope == "global" && !_.isUndefined(@parentManager)
       @logger.debug "Global component '#{component.id}' is being registered in parent PageManager"
       @parentManager.addGlobalComponent component
-    else if component.id && component.scope
+    else if component.id && scope
       if _.isUndefined @globalComponents[component.id]
-        @logger.debug "Global component '#{component.id}' is being registered to PageManager with scope of '#{component.scope}'"
+        @logger.debug "Global component '#{component.id}' is being registered to PageManager with scope of '#{scope}'"
         @globalComponents[component.id] = component
+
+        #remove component from registry of dispose
+        if component.on
+          component.on "dispose", ((comp) ->
+            @logger.debug "Global component '#{comp.id}' is being removed from the PageManager registry"
+            delete @globalComponents[comp.id]
+          ).createDelegate(@)
       else
         @logger.error "Global component '#{component.id}' has already been registered to this Manager. Ignoring register request for component:", component.el
     else
       @logger.debug "Unable to find id/name or scope for the GlobalComponent: ", component.el
+
 
   ###
   @private

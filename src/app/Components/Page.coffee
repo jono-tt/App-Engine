@@ -2,7 +2,7 @@
 
 class Page extends AppEngine.Components.AppEngineComponent
   @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['id', 'pageManager', 'transitionHandler'])
-  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager', 'transitionHandler'])
+  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['id', 'pageManager', 'transitionHandler', 'url', 'fetchStratergy'])
 
   @getShortNameIdentification: -> "app-engine-page"
 
@@ -33,6 +33,12 @@ class Page extends AppEngine.Components.AppEngineComponent
 
     @logger.debug "'#{@id}': Start initialise of page"
     super(callback.createDelegate @)
+
+  reinitialise: (wrappedElement, cb) ->
+    @wrappedElement = wrappedElement
+    @dispose()
+
+    @initialise(cb)
 
   ###
     ACCESSOR PROPERTIES
@@ -65,17 +71,11 @@ class Page extends AppEngine.Components.AppEngineComponent
         @addChildPageComponents pageComponents
 
       componentCreated = (comp) ->
-        if(comp.scope)
-          switch comp.scope
-            when "page"
-              if _.isUndefined @globalComponents[comp.id]
-                @logger.debug "'#{@id}': Global component '#{comp.id}' is being registered to Page with scope of 'page'"
-                @globalComponents[comp.id] = comp
-              else
-                @logger.error "'#{@id}': Global component '#{comp.id}' has already been registered to this Page. Ignoring register request for component:", comp.el
-            else
-              @pageManager.addGlobalComponent comp
+        if comp.scope
+          @addGlobalComponent comp, comp.scope
 
+        @children = @children or []
+        @children.push comp
         cb(comp)
 
       #create this as a normal component (ie. not a page)
@@ -95,32 +95,93 @@ class Page extends AppEngine.Components.AppEngineComponent
     for comp in components
       @childPageManager.components.push(comp)
 
+  ###
+  @private
+  ###
+  addGlobalComponent: (component, scope = "page") ->
+    switch scope
+      when "page"
+        if _.isUndefined @globalComponents[component.id]
+          @logger.debug "'#{@id}': Global component '#{component.id}' is being registered to Page with scope of 'page'"
+          @globalComponents[component.id] = comp
+
+          if comp.on
+            comp.on "dispose", ((comp) ->
+              @logger.debug "'#{@id}': Global component '#{comp.id}' is being removed from the Page registry"
+              delete @globalComponents[comp.id]
+            ).createDelegate(@)
+        else
+          @logger.error "'#{@id}': Global component '#{component.id}' has already been registered to this Page. Ignoring register request for component:", component.el
+      else
+        @pageManager.addGlobalComponent component, scope
+
+  ###
+  Dispose of this page cleanly
+  ###
+  dispose: () ->
+    @logger.debug "'#{@id}': Dispose: Page Start"
+    super()
+
+    @childPageManage.dispose() if @childPageManager
+    @childPageManager = null
+
+    @logger.debug "'#{@id}': Dispose: Page Complete"
+
+  ###
+  @private
+  ###
+  loadPageContent: (url, cb) ->
+    onReinitialised = ->
+      @logger.debug "'#{@id}': Has been reinitialised"
+      cb()
+
+    callback = ->
+      @logger.debug "'#{@id}': Reinitialising page"
+      @isLoaded = true
+      @wrappedElement.children = AppEngine.Helpers.ElementWrap.getTreeStructure(@el)
+      @reinitialise(@wrappedElement, onReinitialised.createDelegate(@))
+
+    @logger.debug "'#{@id}': Loading Page content from '#{url}'"
+    @el.load(url, null, callback.createDelegate(@))
+
 
   #SECTION USED FOR SHOWING AND HIDING PAGES
   beforePageShow: (oldPage, pageParams, childPagesWithParams, success, cancelNavigation) ->
-    _cancelNavigation = ((message)->
-      @logger.debug "'#{@id}': beforePageShow: Navigation has been cancelled"
-      @trigger("pageNavigationCancelled", @)
-      cancelNavigation(message)
-    ).createDelegate(@) if cancelNavigation
 
-    if(oldPage == @)
-      @logger.debug "'#{@id}': beforePageShow: The same page, different parameters"
-      @beforeChildPageShow oldPage, childPagesWithParams, success, _cancelNavigation
-    else
-      @logger.debug "'#{@id}': beforePageShow: page has changed, check components are ok to continue"
+    doBeforePageShow = () ->
+      _cancelNavigation = ((message)->
+        @logger.debug "'#{@id}': beforePageShow: Navigation has been cancelled"
+        @trigger("pageNavigationCancelled", @)
+        cancelNavigation(message)
+      ).createDelegate(@) if cancelNavigation
 
-      successCb = (() ->
-        @beforeChildPageShow(oldPage, childPagesWithParams, success, _cancelNavigation)
-      ).createDelegate(@)
+      if(oldPage == @)
+        @logger.debug "'#{@id}': beforePageShow: The same page, different parameters"
+        @beforeChildPageShow oldPage, childPagesWithParams, success, _cancelNavigation
+      else
+        @logger.debug "'#{@id}': beforePageShow: page has changed, check components are ok to continue"
 
-      cancelCb = ((message) ->
-        @logger.debug "'#{@id}': Components requested stopping of page show"
-        _cancelNavigation(message)
-      ).createDelegate(@) if _cancelNavigation
+        successCb = (() ->
+          @beforeChildPageShow(oldPage, childPagesWithParams, success, _cancelNavigation)
+        ).createDelegate(@)
 
-      @logger.debug "'#{@id}': beforePageShow is continuing to show "
-      @triggerWithCallback("beforePageShown", successCb, cancelCb, oldPage, pageParams)
+        cancelCb = ((message) ->
+          @logger.debug "'#{@id}': Components requested stopping of page show"
+          _cancelNavigation(message)
+        ).createDelegate(@) if _cancelNavigation
+
+        @logger.debug "'#{@id}': beforePageShow is continuing to show "
+        @triggerWithCallback("beforePageShown", successCb, cancelCb, oldPage, pageParams)
+
+    # Check load stratergy to see if this must be loaded from a URL 
+    if @url
+      fetchStratergy = @fetchStratergy or "once"
+
+      if ((fetchStratergy == 'once' and !@isLoaded) or (fetchStratergy == 'always'))
+        return @loadPageContent(@url, doBeforePageShow.createDelegate(@))
+
+    doBeforePageShow.call(@)
+
 
   ###
   @private
