@@ -1,8 +1,8 @@
-#<< AppEngine/TestHelpers
+#<< AppEngine/Behaviours
 
 describe "AppRouter specs", ->
 
-  expectRequiredParameters(AppEngine.Routers.AppRouter, ["pageManager", "parameterParser"])
+  Behaviours.expectRequiredParameters(AppEngine.Routers.AppRouter, ["pageManager", "parameterParser"])
 
   describe "Initialise", ->
     it "should set the correct properties", ->

@@ -1,9 +1,9 @@
-#<< AppEngine/TestHelpers
+#<< AppEngine/Behaviours
 
 describe "Logger Spec", ->
   Logger = AppEngine.Helpers.Logger
 
-  expectRequiredParameters(Logger, ["klazz"])
+  Behaviours.expectRequiredParameters(Logger, ["klazz"])
 
   beforeEach ->
     spyOn(console, "log")

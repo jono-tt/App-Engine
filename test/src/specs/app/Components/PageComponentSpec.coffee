@@ -1,5 +1,5 @@
-#<< AppEngine/TestHelpers
+#<< AppEngine/Behaviours
 
 describe "PageComponent spec", ->
-  expectRequiredParameters(AppEngine.Components.PageComponent, ["page"])
+  Behaviours.expectRequiredParameters(AppEngine.Components.PageComponent, ["page"])
 

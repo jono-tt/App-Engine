@@ -1,5 +1,5 @@
-#<< AppEngine/TestHelpers
+#<< AppEngine/Behaviours
 
 describe "GlobalComponent", ->
-  expectRequiredParameters(AppEngine.Components.GlobalComponent, ["id", "scope"])
+  Behaviours.expectRequiredParameters(AppEngine.Components.GlobalComponent, ["id", "scope"])
 

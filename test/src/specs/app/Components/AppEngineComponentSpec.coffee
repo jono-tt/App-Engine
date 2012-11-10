@@ -1,9 +1,9 @@
-#<< AppEngine/TestHelpers
+#<< AppEngine/Behaviours
 
 describe "AppEngineComponent Specs", ->
   AppEngineComponent = AppEngine.Components.AppEngineComponent
 
-  expectRequiredParameters(AppEngine.Components.AppEngineComponent, ["wrappedElement"])
+  Behaviours.expectRequiredParameters(AppEngine.Components.AppEngineComponent, ["wrappedElement"])
 
   describe "New AppEngineComponent", ->
     it "should be an abstract class", ->
