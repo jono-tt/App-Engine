@@ -1,6 +1,7 @@
 #<< AppEngine/Objects/Object
 class JsonParameterParser extends AppEngine.Objects.Object
   constructor: ->
+    super()
     @regex = new RegExp("([^/]*)/?([^/]*)?/?", '')
 
   parseParameters: (url) ->
@@ -10,10 +11,14 @@ class JsonParameterParser extends AppEngine.Objects.Object
       matches = @regex.getMatches(url)
       if matches.length > 0
         for match in matches
-          pageParams.push({
-            pageName: match[1],
-            params: getParams match[2]
-          })
+          try
+            pageParams.push({
+              pageName: match[1],
+              params: getParams.call @, match[2]
+            })
+          catch e
+            @logger.error "Routing: #{match[1]}: Error parsing params"
+            throw new AppEngine.Helpers.Error "Routing: #{match[1]}: Error parsing params", e
       else
         #this contains only the page name
         pageParams.push({
@@ -23,13 +28,14 @@ class JsonParameterParser extends AppEngine.Objects.Object
     return pageParams
 
   getParams = (paramString) ->
-
     if !_.isEmpty(paramString)
       try
-        return $j.parseJSON urlDecode(paramString)
+        decodedUrl = urlDecode.call(@, paramString)
+        decodedUrl = decodedUrl.replace("'", "\"", 'g')
+
+        return $j.parseJSON decodedUrl
       catch e
-        #do nothing, just cannot parse JSON
-        @logger.debug "Cannot parse '", urlDecode(paramString), "' to JSON"
+        throw new AppEngine.Helpers.Error "Error parsing params '#{urlDecode.call(@, paramString)}' to JSON", e
 
     return null
 
