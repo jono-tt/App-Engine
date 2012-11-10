@@ -1,5 +1,7 @@
 class Logger
   constructor: (klass) ->
+    AppEngine.Helpers.assertParametersExist ["klazz"], { klazz: klass }
+
     klassName = null
     logStartValue = ""
 
