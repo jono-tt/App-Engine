@@ -1,4 +1,6 @@
 describe "ShowHideTransitionHandler specs", ->
+  Behaviours.expectRequiredParameters(AppEngine.Transitions.ShowHideTransitionHandler, [])
+      
   describe "doTransition", ->
     it "should do transion to newPage without old page", ->
       newPage = new MockJQueryObject()
@@ -14,7 +16,6 @@ describe "ShowHideTransitionHandler specs", ->
       expect(newPage.fadeIn.calls[0].args[0]).toEqual(1000)
 
       expect(callback).toHaveBeenCalled()
-
 
     it "should do transion from oldPage to newPage", ->
       newPage = new MockJQueryObject()
