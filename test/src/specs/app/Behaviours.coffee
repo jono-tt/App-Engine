@@ -47,4 +47,17 @@ This file contains wrappers for test Behaivours that can be applied in other Spe
         params = _.clone(paramList) if _.toArray(paramList).length > 0
         doTest(name, params)
         paramList[name] = name
+
+  ###
+  Ensure that this class/type is abstract
+  ###
+  expectAbstract: (type) ->
+    describe "Abstract", ->
+      it "should be an abstract class/type", ->
+        if(type.isAbstract && type.isAbstract())
+          return
+
+        expect("Should have failed").toEqual("because class/type should be abstract")
+
+
 }
