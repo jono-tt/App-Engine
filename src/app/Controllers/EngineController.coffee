@@ -1,6 +1,7 @@
 class EngineController
   constructor: (appConfig = {}) ->
     @appConfig = appConfig
+    @rootElement = appConfig.rootElement or $j("body")
 
   initialise: (cb) ->
     try
@@ -26,7 +27,7 @@ class EngineController
 
   initPageManager: (cb) ->
     #get all the 'components' on the page that can be compontentised
-    components = AppEngine.Helpers.ElementWrap.getTreeStructure()
+    components = AppEngine.Helpers.ElementWrap.getTreeStructure(@rootElement)
 
     pageManagerInitialised = (manager) ->
       @pageManager = manager
