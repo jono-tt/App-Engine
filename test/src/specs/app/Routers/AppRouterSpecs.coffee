@@ -1,4 +1,9 @@
+#<< AppEngine/TestHelpers
+
 describe "AppRouter specs", ->
+
+  expectRequiredParameters(AppEngine.Routers.AppRouter, ["pageManager", "parameterParser"])
+
   describe "Initialise", ->
     it "should set the correct properties", ->
       pm = jasmine.createSpyObj("PageManager", ["on"])
