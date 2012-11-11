@@ -122,7 +122,7 @@ class Page extends AppEngine.Components.AppEngineComponent
     @logger.debug "'#{@id}': Dispose: Page Start"
     super()
 
-    @childPageManage.dispose() if @childPageManager
+    @childPageManager.dispose() if @childPageManager
     @childPageManager = null
 
     @logger.debug "'#{@id}': Dispose: Page Complete"
