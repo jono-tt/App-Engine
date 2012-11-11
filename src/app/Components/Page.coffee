@@ -9,10 +9,10 @@ class Page extends AppEngine.Components.AppEngineComponent
   get = (props) => @::__defineGetter__ name, getter for name, getter of props
   set = (props) => @::__defineSetter__ name, setter for name, setter of props
 
-  globalComponents: {}
-
   constructor: (options = {})->
     super options
+    @globalComponents = {}
+    @_currentPageParams = new Backbone.Model()
     @logger.debug "'#{@id}': object has been created"
 
   initialise: (cb) ->
@@ -45,7 +45,21 @@ class Page extends AppEngine.Components.AppEngineComponent
   ###
 
   # @property [String] The current parameters of this page
-  get currentPageParams: (@_currentPageParams) ->
+  getPageParams: () ->
+    return @_currentPageParams
+
+  ###
+
+  ###
+  setPageParams: (params) ->
+    if _.isObject(params) or !params
+      params = params or {}
+
+      _.each(params, (value, name) ->
+        @_currentPageParams.set(name, value)
+      , @)
+    else 
+      throw new Error("Error: setPageParams expects params to be an object")
 
   ###
     END ACCESSOR PROPERTIES
@@ -103,12 +117,12 @@ class Page extends AppEngine.Components.AppEngineComponent
       when "page"
         if _.isUndefined @globalComponents[component.id]
           @logger.debug "'#{@id}': Global component '#{component.id}' is being registered to Page with scope of 'page'"
-          @globalComponents[component.id] = comp
+          @globalComponents[component.id] = component
 
-          if comp.on
-            comp.on "dispose", ((comp) ->
-              @logger.debug "'#{@id}': Global component '#{comp.id}' is being removed from the Page registry"
-              delete @globalComponents[comp.id]
+          if component.on
+            component.on "dispose", ((comp) ->
+              @logger.debug "'#{@id}': Global component '#{component.id}' is being removed from the Page registry"
+              delete @globalComponents[component.id]
             ).createDelegate(@)
         else
           @logger.error "'#{@id}': Global component '#{component.id}' has already been registered to this Page. Ignoring register request for component:", component.el
@@ -196,7 +210,7 @@ class Page extends AppEngine.Components.AppEngineComponent
 
       cancelByChildPageCb = ((message) ->
         @logger.debug "'#{@id}': Child page requested stopping of page show"
-        cancelNavigation()
+        cancelNavigation(message)
       ).createDelegate(@) if cancelNavigation
 
       #slice the params to pass through to the child page manager to do the chaining correctly
@@ -213,7 +227,7 @@ class Page extends AppEngine.Components.AppEngineComponent
 
 
   pageShow: (oldPage, pageParams, childPagesWithParams, cb) ->
-    @_currentPageParams = pageParams
+    @setPageParams pageParams
 
     complete = ->
       oldPage.afterPageHide(@) if oldPage
@@ -266,10 +280,10 @@ class Page extends AppEngine.Components.AppEngineComponent
 
       cancelCb = (message) ->
         @logger.debug "'#{@id}': Components requested stopping of page hide"
-        _cancelNavigation()
+        _cancelNavigation(message)
 
       @logger.debug "'#{@id}': beforePageHide is continuing to hide "
-      @triggerWithCallback("beforePageHide", success.createDelegate(@), cancelCb.createDelegate(@), newPage, pageParams)
+      @triggerWithCallback("beforePageHide", successCb.createDelegate(@), cancelCb.createDelegate(@), newPage, pageParams)
 
   beforeChildPageHide: (childPagesWithParams, success, cancelNavigation) ->
 
@@ -280,7 +294,7 @@ class Page extends AppEngine.Components.AppEngineComponent
 
       cancelByChildPageCb = (message) ->
         @logger.debug "'#{@id}': Child page requested stopping of page hide"
-        cancelNavigation()
+        cancelNavigation(message)
 
       #slice the params to pass through to the child page manager to do the chaining correctly
       childPages = childPagesWithParams.slice(1)
