@@ -3,30 +3,8 @@
 describe "AppEngineComponent Specs", ->
   AppEngineComponent = AppEngine.Components.AppEngineComponent
 
-  Behaviours.expectRequiredParameters(AppEngine.Components.AppEngineComponent, ["wrappedElement"])
-
-  describe "New AppEngineComponent", ->
-    it "should be an abstract class", ->
-      try
-        new AppEngineComponent()
-        expect("This should error").toEqual("here")
-      catch e
-        expect(e instanceof AppEngine.Helpers.Error).toBeTruthy()
-        expect(e.getRootError().message).toEqual("Unable to create instance of Abstract class 'AppEngineComponent'")
-
-    it "should fail without the correct parameters on creation", ->
-      class A extends AppEngineComponent
-      try
-        new A()
-        expect("This should error").toEqual("here")
-      catch e
-        expect(e instanceof AppEngine.Helpers.Error).toBeTruthy()
-        expect(e.getRootError().message).toEqual("The constructor expects the parameter 'el' to be passed in as a config parameter")
-
-    it "should create an object using the correct parameters", ->
-      class A extends AppEngineComponent
-      new A({el: "1", wrappedElement: "2"})
-
+  Behaviours.expectRequiredParameters(AppEngineComponent, ["wrappedElement"])
+  Behaviours.expectAbstract(AppEngineComponent)
 
   describe "Initialise", ->
     class A extends AppEngineComponent
