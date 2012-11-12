@@ -1,3 +1,5 @@
+#<< AppEngine/JasmineExtends
+
 ###
 This file contains wrappers for test Behaivours that can be applied in other Specs
 ###
@@ -27,12 +29,7 @@ This file contains wrappers for test Behaivours that can be applied in other Spe
           new type params
           expect("Should have failed").toEqual("because parameter is required")
         catch e
-          if e.getRootError
-            message = e.getRootError().message
-          else
-            message = e.message
-            
-          expect(message).toEqual("The constructor expects the parameter '#{name}' to be passed in as a config parameter")
+          expect(e.message).toEqual("The constructor expects the parameter '#{name}' to be passed in as a config parameter")
 
     describe "New Object", ->
       #if this has expectedParameters then make sure we are testing for all expected params
