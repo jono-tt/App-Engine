@@ -13,7 +13,7 @@ class JsonParameterParser extends AppEngine.Objects.Object
         for match in matches
           try
             pageParams.push({
-              pageName: match[1],
+              pageName: urlDecode(match[1]),
               params: getParams.call @, match[2]
             })
           catch e
@@ -26,6 +26,17 @@ class JsonParameterParser extends AppEngine.Objects.Object
         })
 
     return pageParams
+
+  encodePagesToUrl: (pagesAndParams) ->
+    firstChar = "#"
+    url = ""
+
+    for p in pagesAndParams
+      params = if p.params then urlEncode(JSON.stringify(p.params)) else ""
+      url += firstChar + urlEncode(p.pageName) + "/" + params
+      firstChar = "/"
+
+    return url
 
   getParams = (paramString) ->
     if !_.isEmpty(paramString)
@@ -41,6 +52,9 @@ class JsonParameterParser extends AppEngine.Objects.Object
 
   urlDecode = (str) ->
     return decodeURIComponent((str + '').replace(/\+/g, '%20'))
+
+  urlEncode = (str) ->
+    return encodeURIComponent(str + '')
 
   getDeviceRoutingObjects: ->
     routingData = $j("#device-routing")

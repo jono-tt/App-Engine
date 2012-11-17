@@ -1,8 +1,8 @@
 #<< AppEngine/Objects/StrictObject
 
 class PageManager extends AppEngine.Objects.StrictObject
-  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['appConfig'])
-  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['appConfig', 'components', 'pageDefaultConfig', 'pageClassIdentifier', 'parentManager'])
+  @expectedParameters: AppEngine.Helpers.mergeArrays(_super.expectedParameters, ['appConfig', 'parameterParser'])
+  @applyParameters: AppEngine.Helpers.mergeArrays(_super.applyParameters, ['appConfig', 'parameterParser', 'components', 'pageDefaultConfig', 'pageClassIdentifier', 'parentManager'])
 
   globalComponents: {}
 
@@ -64,7 +64,11 @@ class PageManager extends AppEngine.Objects.StrictObject
     _.defaults pageDefConfig, @pageDefaultConfig
 
     addPage = (item, callback) ->
-      AppEngine.Helpers.createObjectByElementWrap item, pageDefConfig, callback
+      try 
+        AppEngine.Helpers.createObjectByElementWrap item, pageDefConfig, callback
+      catch e
+        name = item.id if item
+        throw new AppEngine.Helpers.Error "Error creating page '#name'", e, item
 
     pagesInitialiseComplete = (pages)->
       @pages = {}
@@ -163,6 +167,62 @@ class PageManager extends AppEngine.Objects.StrictObject
       else
         @logger.warn "Page '#{@specialPages.errorPage.id} is already set as Error page. Ignoring change to '#{page.id}'"
 
+  ###
+  Get the current Page stack
+  ###
+  getCurrentPageStack: () ->
+    if @parentManager
+      pages = @parentManager.getCurrentPageStack()
+      pages.push @currentPage
+      return pages
+    else
+      return [@currentPage]
+
+  ###
+  Get the current base Page stack
+  ###
+  getBasePageStack: () ->
+    if @parentManager
+      return @parentManager.getCurrentPageStack()
+    else
+      return []
+
+  ###
+  Navigate to the page requested
+
+  @param (Page/String) page The page or page name to redirect the user to
+  @param (Object) params An object map containing the parameters to use when navigation
+  ###
+  doPageNavigation: (page, params) ->
+    actualPage = page
+    pages = @getBasePageStack()
+    pagesAndParams = []
+
+    if _.isString(page)
+      #try get the page by name
+      actualPage = @pages[page]
+
+    if !_.isObject(actualPage)
+      throw new AppEngine.Helpers.Error "Unable to find page to navigate to", new Error("Page not found"), page
+
+    for p in pages
+      pagesAndParams.push {
+        pageName: p.id,
+        params: p.getPageParams().toJSON()
+      }
+
+    #add new page to navigate to
+    pagesAndParams.push {
+      pageName: actualPage.id,
+      params: params
+    }
+
+    #get the navigation URL from the Parameter Parser
+    url = @parameterParser.encodePagesToUrl pagesAndParams
+    @logger.log "Changing document location to '#{url}'"
+    AppEngine.Helpers.changeDocumentLocation url
+
+
   #This will return the first level pages from the list of components
   getPageElementsFromComponents: (components, pages) ->
     components = [components] if !_.isArray(components)
@@ -188,6 +248,7 @@ class PageManager extends AppEngine.Objects.StrictObject
   getChildPageManager: () ->
     return new PageManager({
       appConfig: @appConfig,
+      parameterParser: @parameterParser,
       pageDefaultConfig: @pageDefaultConfig,
       pageClassIdentifier: @pageClassIdentifier,
       parentManager: @

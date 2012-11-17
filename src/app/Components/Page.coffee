@@ -44,7 +44,9 @@ class Page extends AppEngine.Components.AppEngineComponent
     ACCESSOR PROPERTIES
   ###
 
-  # @property [String] The current parameters of this page
+  ###
+  @property [Model] The current parameters of this page
+  ###
   getPageParams: () ->
     return @_currentPageParams
 

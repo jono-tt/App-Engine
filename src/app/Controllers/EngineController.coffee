@@ -5,25 +5,36 @@ class EngineController
 
   initialise: (cb) ->
     try
+      @logger = new AppEngine.Helpers.Logger(EngineController)
 
-      initRouterComplete = (router) ->
-        @appRouter = router
+      initComplete = () ->
+        @logger.log "Initialisation of EngineController complete"
         cb()
 
       initRouter = ->
-        AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig, pageManager: @pageManager, parameterParser: @parameterParser}, @appConfig.router, AppEngine.Routers.AppRouter, initRouterComplete.createDelegate(@)
+        @initRouter(initComplete.createDelegate(@))
 
-      initParameterParserComplete = (parser) ->
-        @parameterParser = parser
-        initRouter.call(@)
+      initPM = ->
+        @initPageManager(initRouter.createDelegate(@))
 
-      initParameterParser = ->
-        AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig}, @appConfig.parameterParser, AppEngine.Routers.JsonParameterParser, initParameterParserComplete.createDelegate(@)
-
-
-      @initPageManager initParameterParser.createDelegate(@)
+      @initParameterParser(initPM.createDelegate(@))
     catch e
       throw new AppEngine.Helpers.Error "EngineController: initialising PageManager", e
+
+  initRouter: (cb) ->
+    initComplete = (router) ->
+      @appRouter = router
+      cb()
+
+    AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig, pageManager: @pageManager, parameterParser: @parameterParser}, @appConfig.router, AppEngine.Routers.AppRouter, initComplete.createDelegate(@)
+
+
+  initParameterParser: (cb) ->
+    initParameterParserComplete = (parser) ->
+        @parameterParser = parser
+        cb()
+
+    AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig}, @appConfig.parameterParser, AppEngine.Routers.JsonParameterParser, initParameterParserComplete.createDelegate(@)
 
   initPageManager: (cb) ->
     #get all the 'components' on the page that can be compontentised
@@ -34,7 +45,7 @@ class EngineController
       cb()
 
     pageManagerConfig = @appConfig.pageManager or {}
-    AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig, components: components}, pageManagerConfig, AppEngine.Managers.PageManager, pageManagerInitialised.createDelegate(@)
+    AppEngine.Helpers.getObjectByConfig {appConfig: @appConfig, components: components, parameterParser: @parameterParser}, pageManagerConfig, AppEngine.Managers.PageManager, pageManagerInitialised.createDelegate(@)
 
 
   start: ->

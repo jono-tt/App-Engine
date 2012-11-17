@@ -50,3 +50,21 @@ describe "JsonParameterParser specs", ->
         p.parseParameters(url)
       ).toThrow(new Error "Routing: p1: Error parsing params")
       
+  describe "encodePagesToUrl", ->
+    it "should encode the page params with null params", ->
+      pages = [
+        {
+          pageName: "foo@bar",
+          params: { test: 123 }
+        },{
+          pageName: "zoo"
+        },{
+          pageName: "pet",
+          params: { go: "to" }
+        }
+      ]
+
+      p = new AppEngine.Routers.JsonParameterParser();
+
+      expect(p.encodePagesToUrl(pages)).toEqual('#foo%40bar/%7B%22test%22%3A123%7D/zoo//pet/%7B%22go%22%3A%22to%22%7D')
+

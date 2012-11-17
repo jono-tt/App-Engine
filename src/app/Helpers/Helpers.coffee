@@ -206,3 +206,5 @@ helpers.mergeArrays = (arr1, arr2) ->
   return _.union(arr1, arr2)
 
 
+helpers.changeDocumentLocation = (url) ->
+  window.location = url
