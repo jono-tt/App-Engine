@@ -6,9 +6,6 @@ class Page extends AppEngine.Components.AppEngineComponent
 
   @getShortNameIdentification: -> "app-engine-page"
 
-  get = (props) => @::__defineGetter__ name, getter for name, getter of props
-  set = (props) => @::__defineSetter__ name, setter for name, setter of props
-
   constructor: (options = {})->
     super options
     @globalComponents = {}
@@ -45,21 +42,20 @@ class Page extends AppEngine.Components.AppEngineComponent
   ###
 
   ###
-  @property [Model] The current parameters of this page
+  Get the current parameters that are present on this page
+
+  @return [Backbone Model] The current parameters of this page
   ###
   getPageParams: () ->
     return @_currentPageParams
 
   ###
-
+  @private
   ###
   setPageParams: (params) ->
     if _.isObject(params) or !params
       params = params or {}
-
-      _.each(params, (value, name) ->
-        @_currentPageParams.set(name, value)
-      , @)
+      @_currentPageParams.set(params)
     else 
       throw new Error("Error: setPageParams expects params to be an object")
 
