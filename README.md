@@ -6,7 +6,7 @@ External Dependencies:
   toaster        - https://github.com/serpentem/coffee-toaster
 
 Internal Dependencies: (Files included in Vendors folders)
-  Jasmine        - http://pivotal.github.com/jasmine/
+  Jasmine        - https://jasmine.github.io/
   BackboneJS     - http://backbonejs.org/
   JQuery         - http://jquery.com/
   Underscore     - http://underscorejs.org/
